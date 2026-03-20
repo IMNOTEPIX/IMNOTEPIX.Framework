@@ -1,0 +1,21 @@
+ImNotEpix.Framework — Custom License
+Copyright (c) 2025 ImNotEpix (github.com/ImNotEpix)
+
+Permission is hereby granted to use this software in personal or public
+GTA 5 modifications, subject to the following conditions:
+
+1. You may NOT decompile, disassemble, or reverse engineer the compiled
+   binaries of this software.
+
+2. You may NOT redistribute modified versions of the compiled binaries
+   without explicit written permission from the author.
+
+3. You must give clear credit to ImNotEpix in any project that uses
+   this framework (e.g. in your mod's readme or description).
+
+4. This software is provided "as is" without warranty of any kind.
+   The author is not liable for any damages caused by the use of this software.
+
+THE ABOVE RESTRICTIONS APPLY TO THE COMPILED BINARY (.dll) ONLY.
+If source code is made available separately, it may be governed by a
+different license stated in that release.
