@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using IMNOTEPIX.Framework.Interfaces;
+using IMNOTEPIX.Framework.fInterfaces;
 
-namespace IMNOTEPIX.Framework.Core
+namespace IMNOTEPIX.Framework.fCore
 {
     /// <summary>
     /// Manages a single active IScene at a time.
@@ -10,24 +10,19 @@ namespace IMNOTEPIX.Framework.Core
     /// Scenes are registered as factories (Func&lt;IScene&gt;) rather than
     /// pre-constructed instances, so no scene allocates resources until
     /// it is actually started.
+    /// </summary>
     ///
     /// Usage:
     ///   SceneManager.Register("BombPlant", () => new BombPlantScene());
     ///   SceneManager.StartScene("BombPlant");
     ///   // each tick:
     ///   SceneManager.Update();
-    /// </summary>
-    public static class SceneManager
+    public class SceneManager
     {
-        private static readonly Dictionary<string, Func<IScene>> _factories
-            = new Dictionary<string, Func<IScene>>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, Func<IScene>> factories = new Dictionary<string, Func<IScene>>(StringComparer.OrdinalIgnoreCase);
 
-        private static IScene _currentScene;
-        private static string _currentSceneName;
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Registration
-        // ─────────────────────────────────────────────────────────────────────
+        private static IScene currentScene;
+        private static string currentSceneName;
 
         /// <summary>
         /// Registers a scene factory under the given name.
@@ -42,19 +37,15 @@ namespace IMNOTEPIX.Framework.Core
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            _factories[name] = factory;
+            factories[name] = factory;
         }
 
         /// <summary>Removes a scene factory registration.</summary>
         public static void Unregister(string name)
         {
             if (name != null)
-                _factories.Remove(name);
+                factories.Remove(name);
         }
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Control
-        // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Starts the named scene.
@@ -68,36 +59,32 @@ namespace IMNOTEPIX.Framework.Core
         /// </summary>
         public static bool StartScene(string name, bool forceReplace = false)
         {
-            if (!_factories.TryGetValue(name, out var factory))
-            {
-                throw new KeyNotFoundException(
-                    $"No scene registered with name '{name}'. " +
-                    $"Call SceneManager.Register() first.");
-            }
+            if (!factories.TryGetValue(name, out var factory))
+                throw new KeyNotFoundException($"No scene registered with name '{name}'. " + $"Call SceneManager.Register() first.");
 
-            if (_currentScene != null)
+            if (currentScene != null)
             {
-                if (!forceReplace) return false;
+                if (!forceReplace)
+                    return false;
                 StopCurrentScene();
             }
 
-            _currentScene = factory();
-            _currentSceneName = name;
-            _currentScene.Start();
+            currentScene = factory();
+            currentSceneName = name;
+            currentScene.Start();
             return true;
         }
 
         /// <summary>
-        /// Updates the active scene. Call this once per OnTick.
+        /// Updates the active scene. <b>Call this once per OnTick.</b>
         /// Automatically stops and disposes the scene when it reports IsFinished.
         /// </summary>
         public static void Update()
         {
-            if (_currentScene == null) return;
+            if (currentScene != null)
+                currentScene.Update();
 
-            _currentScene.Update();
-
-            if (_currentScene.IsFinished)
+            if (currentScene != null && currentScene.IsFinished)
                 FinishCurrentScene();
         }
 
@@ -107,39 +94,32 @@ namespace IMNOTEPIX.Framework.Core
         /// </summary>
         public static void StopCurrentScene()
         {
-            if (_currentScene == null) return;
+            if (currentScene == null)
+                return;
 
-            _currentScene.Stop();
-            (_currentScene as IDisposable)?.Dispose();
-            _currentScene = null;
-            _currentSceneName = null;
+            currentScene.Stop();
+            (currentScene as IDisposable)?.Dispose();
+            currentScene = null;
+            currentSceneName = null;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Queries
-        // ─────────────────────────────────────────────────────────────────────
-
         /// <summary>True if a scene is currently active.</summary>
-        public static bool IsSceneRunning => _currentScene != null;
+        public static bool IsSceneRunning => currentScene != null;
 
         /// <summary>
         /// The name of the currently running scene, or null if none is active.
         /// </summary>
-        public static string CurrentSceneName => _currentSceneName;
+        public static string CurrentSceneName => currentSceneName;
 
         /// <summary>
         /// True if the scene with the given name is the one currently running.
         /// </summary>
         public static bool IsScene(string name)
-            => string.Equals(_currentSceneName, name, StringComparison.OrdinalIgnoreCase);
+            => string.Equals(currentSceneName, name, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>True if a factory is registered under the given name.</summary>
         public static bool HasScene(string name)
-            => name != null && _factories.ContainsKey(name);
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Private
-        // ─────────────────────────────────────────────────────────────────────
+            => name != null && factories.ContainsKey(name);
 
         /// <summary>
         /// Called by Update() when the scene reports IsFinished.
@@ -147,10 +127,10 @@ namespace IMNOTEPIX.Framework.Core
         /// </summary>
         private static void FinishCurrentScene()
         {
-            _currentScene.Stop();
-            (_currentScene as IDisposable)?.Dispose();
-            _currentScene = null;
-            _currentSceneName = null;
+            currentScene.Stop();
+            (currentScene as IDisposable)?.Dispose();
+            currentScene = null;
+            currentSceneName = null;
         }
     }
 }

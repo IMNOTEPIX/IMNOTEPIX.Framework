@@ -1,18 +1,14 @@
-﻿using GTA;
-using GTA.Native;
+﻿using GTA.Native;
 using System.ComponentModel;
 using System;
 
-namespace IMNOTEPIX.Framework.Core
+namespace IMNOTEPIX.Framework.fCore
 {
+
     [Obsolete("Use ScriptManager instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class InGameScripts
+    public class InGameScripts
     {
-        // ─────────────────────────────────────────────────────────────────────
-        // Start
-        // ─────────────────────────────────────────────────────────────────────
-
         public static void StartAllNeededToStartScripts()
         {
             StartScriptMissionTriggerers();
@@ -33,10 +29,6 @@ namespace IMNOTEPIX.Framework.Core
             StartScript("controller_towing", 2050);
             StartScript("controller_trafficking", 1424);
         }
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Terminate
-        // ─────────────────────────────────────────────────────────────────────
 
         public static void TerminateScriptsExceptMissions()
         {
@@ -124,57 +116,87 @@ namespace IMNOTEPIX.Framework.Core
 
         private static void TerminateLaunchers()
         {
-            Terminate("launcher_abigail"); Terminate("launcher_barry");
-            Terminate("launcher_basejumpheli"); Terminate("launcher_basejumppack");
-            Terminate("launcher_carwash"); Terminate("launcher_darts");
-            Terminate("launcher_dreyfuss"); Terminate("launcher_epsilon");
-            Terminate("launcher_extreme"); Terminate("launcher_fanatic");
-            Terminate("launcher_hao"); Terminate("launcher_hunting");
+            Terminate("launcher_abigail"); 
+            Terminate("launcher_barry");
+            Terminate("launcher_basejumpheli"); 
+            Terminate("launcher_basejumppack");
+            Terminate("launcher_carwash"); 
+            Terminate("launcher_darts");
+            Terminate("launcher_dreyfuss"); 
+            Terminate("launcher_epsilon");
+            Terminate("launcher_extreme"); 
+            Terminate("launcher_fanatic");
+            Terminate("launcher_hao"); 
+            Terminate("launcher_hunting");
             Terminate("launcher_hunting_ambient");
-            Terminate("launcher_josh"); Terminate("launcher_maude");
-            Terminate("launcher_minute"); Terminate("launcher_mrsphilips");
-            Terminate("launcher_nigel"); Terminate("launcher_omega");
-            Terminate("launcher_paparazzo"); Terminate("launcher_pilotschool");
-            Terminate("launcher_range"); Terminate("launcher_stunts");
-            Terminate("launcher_tennis"); Terminate("launcher_thelastone");
-            Terminate("launcher_tonya"); Terminate("launcher_triathlon");
-            Terminate("launcher_yoga"); Terminate("bailbond_launcher");
+            Terminate("launcher_josh"); 
+            Terminate("launcher_maude");
+            Terminate("launcher_minute"); 
+            Terminate("launcher_mrsphilips");
+            Terminate("launcher_nigel"); 
+            Terminate("launcher_omega");
+            Terminate("launcher_paparazzo"); 
+            Terminate("launcher_pilotschool");
+            Terminate("launcher_range");
+            Terminate("launcher_stunts");
+            Terminate("launcher_tennis"); 
+            Terminate("launcher_thelastone");
+            Terminate("launcher_tonya"); 
+            Terminate("launcher_triathlon");
+            Terminate("launcher_yoga"); 
+            Terminate("bailbond_launcher");
         }
 
         private static void TerminateAllPropertyManagement()
         {
-            Terminate("pm_defend"); Terminate("pm_delivery");
-            Terminate("pm_gang_attack"); Terminate("pm_plane_promotion");
+            Terminate("pm_defend"); 
+            Terminate("pm_delivery");
+            Terminate("pm_gang_attack"); 
+            Terminate("pm_plane_promotion");
             Terminate("pm_recover_stolen");
         }
 
         private static void TerminateAllRandomEvents()
         {
-            Terminate("re_yetarian"); Terminate("re_stag_do");
-            Terminate("re_snatched"); Terminate("re_shoprobbery");
-            Terminate("re_securityvan"); Terminate("re_seaplane");
-            Terminate("re_rescuehostage"); Terminate("re_prisonvanbreak");
-            Terminate("re_prisonerlift"); Terminate("re_prison");
-            Terminate("re_paparazzi"); Terminate("re_muggings");
-            Terminate("re_mountdance"); Terminate("re_monkey");
-            Terminate("re_lured"); Terminate("re_lossantosintl");
+            Terminate("re_yetarian"); 
+            Terminate("re_stag_do");
+            Terminate("re_snatched"); 
+            Terminate("re_shoprobbery");
+            Terminate("re_securityvan"); 
+            Terminate("re_seaplane");
+            Terminate("re_rescuehostage"); 
+            Terminate("re_prisonvanbreak");
+            Terminate("re_prisonerlift"); 
+            Terminate("re_prison");
+            Terminate("re_paparazzi"); 
+            Terminate("re_muggings");
+            Terminate("re_mountdance");
+            Terminate("re_monkey");
+            Terminate("re_lured"); 
+            Terminate("re_lossantosintl");
             Terminate("re_homeland_security");
-            Terminate("re_hitch_lift"); Terminate("re_getaway_driver");
-            Terminate("re_gangfight"); Terminate("re_gang_intimidation");
-            Terminate("re_duel"); Terminate("re_drunkdriver");
-            Terminate("re_domestic"); Terminate("re_dealgonewrong");
-            Terminate("re_cultshootout"); Terminate("re_crashrescue");
-            Terminate("re_chasethieves"); Terminate("re_cartheft");
-            Terminate("re_bus_tours"); Terminate("re_burials");
-            Terminate("re_border"); Terminate("re_bikethief");
-            Terminate("re_atmrobbery"); Terminate("re_arrests");
-            Terminate("re_armybase"); Terminate("re_accident");
+            Terminate("re_hitch_lift"); 
+            Terminate("re_getaway_driver");
+            Terminate("re_gangfight");
+            Terminate("re_gang_intimidation");
+            Terminate("re_duel"); 
+            Terminate("re_drunkdriver");
+            Terminate("re_domestic");
+            Terminate("re_dealgonewrong");
+            Terminate("re_cultshootout"); 
+            Terminate("re_crashrescue");
+            Terminate("re_chasethieves");
+            Terminate("re_cartheft");
+            Terminate("re_bus_tours");
+            Terminate("re_burials");
+            Terminate("re_border"); 
+            Terminate("re_bikethief");
+            Terminate("re_atmrobbery"); 
+            Terminate("re_arrests");
+            Terminate("re_armybase"); 
+            Terminate("re_accident");
             Terminate("re_abandonedcar");
         }
-
-        // ─────────────────────────────────────────────────────────────────────
-        // Helpers
-        // ─────────────────────────────────────────────────────────────────────
 
         public static void StartScript(string scriptName, int buffer)
         {
@@ -189,7 +211,7 @@ namespace IMNOTEPIX.Framework.Core
             while (!Function.Call<bool>(Hash.HAS_SCRIPT_LOADED, scriptName))
             {
                 Function.Call(Hash.REQUEST_SCRIPT, scriptName);
-                Script.Yield();
+                GTA.Script.Yield();
             }
         }
 

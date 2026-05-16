@@ -1,4 +1,4 @@
-﻿namespace IMNOTEPIX.Framework.Interfaces
+﻿namespace IMNOTEPIX.Framework.fInterfaces
 {
     public interface IMinigame
     {
