@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Math;
+using GTA.Native;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +8,13 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public static class Object
     {
+
+        public static void RemoveAllPickupsOfType(PickupType pickupHash) 
+            => Function.Call(Hash.REMOVE_​ALL_​PICKUPS_​OF_​TYPE, pickupHash);
+
+        public static void RemoveAllPickupsOfType(int pickupHash)
+            => Function.Call(Hash.REMOVE_​ALL_​PICKUPS_​OF_​TYPE, pickupHash);
+
         public static void DeleteObjectsInList(List<GTA.Prop> objectList)
         {
             foreach (var obj in objectList)
@@ -60,11 +68,11 @@ namespace IMNOTEPIX.Framework.fWorld
                 objectList.Add(obj);
         }
 
-        [Obsolete("Call fWorld.CreateProp directly.")]
+        [Obsolete("Call GTA.World.CreateProp directly.")]
         public static GTA.Prop CreateObject(Model model, Vector3 pos, Vector3 rot, bool dynamic, bool placeOnGround)
             => GTA.World.CreateProp(model, pos, rot, dynamic, placeOnGround);
 
-        [Obsolete("Call fWorld.CreatePropNoOffset directly.")]
+        [Obsolete("Call GTA.World.CreatePropNoOffset directly.")]
         public static GTA.Prop CreateObjectNoOffset(Model model, Vector3 pos, Vector3 rot, bool dynamic)
             => GTA.World.CreatePropNoOffset(model, pos, rot, dynamic);
     }

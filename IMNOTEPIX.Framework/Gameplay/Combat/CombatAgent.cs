@@ -15,8 +15,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
         public bool Exists => Handle != null && Handle.Exists();
         public bool IsAlive => Exists && Handle.IsAlive;
 
-        private readonly int _aiTeam = GTA.World.AddRelationshipGroup("aiteam").Hash;
-        private readonly int _playerTeam = Function.Call<int>(Hash.GET_HASH_KEY, "PLAYER");
+        private RelationshipGroup _aiTeam = new RelationshipGroup(RelationshipGroupHash.HatesPlayer);
         private bool _activated;
         private bool _disposed;
 
@@ -119,8 +118,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
 
         private void SetupRelationships()
         {
-            fWorld.Ped.SetRelationshipBetweenGroups(fWorld.Ped.RelationshipTypes.Hate, _aiTeam, _playerTeam);
-            fWorld.Ped.SetRelationshipBetweenGroups(fWorld.Ped.RelationshipTypes.Hate, _playerTeam, _aiTeam);
+            Handle.RelationshipGroup = _aiTeam;
+            Handle.Task.CombatHatedTargetsAroundPed(1000f);
         }
 
         private void SetupCombat()
@@ -136,6 +135,9 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
 
             foreach (var attr in Config.DisableAttributes)
                 fWorld.Ped.SetPedCombatAttributes(Handle, attr, false);
+
+            foreach (var attr in Config.CombatFloat)
+                Handle.SetCombatFloatAttribute(attr.Item1, attr.Item2);
         }
 
         private void SetupWeapon()
@@ -151,8 +153,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
                 return;
 
             var player = Game.Player.Character;
-            bool sameInterior = fWorld.Interior.Interior.GetInteriorFromEntity(Handle) == fWorld.Interior.Interior.GetInteriorFromEntity(player);
-            bool sameRoom = fWorld.Interior.Interior.GetRoomKeyFromEntity(Handle) == fWorld.Interior.Interior.GetRoomKeyFromEntity(player);
+            bool sameInterior = fWorld.Map.Interior.GetInteriorFromEntity(Handle) == fWorld.Map.Interior.GetInteriorFromEntity(player);
+            bool sameRoom = fWorld.Map.Interior.GetRoomKeyFromEntity(Handle) == fWorld.Map.Interior.GetRoomKeyFromEntity(player);
 
             blip.Alpha = (sameInterior && sameRoom) ? 255 : 0;
         }

@@ -1,6 +1,6 @@
 ﻿using GTA.Math;
 
-namespace IMNOTEPIX.Framework.fWorld.Interior
+namespace IMNOTEPIX.Framework.fWorld.Map
 {
     /// <summary>
     /// Pure data for one mansion safehouse instance.

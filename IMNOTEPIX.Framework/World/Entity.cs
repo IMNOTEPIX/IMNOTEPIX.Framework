@@ -1,11 +1,112 @@
-﻿using GTA.Math;
+﻿using GTA;
+using GTA.Math;
 using GTA.Native;
 using System;
+using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 
 namespace IMNOTEPIX.Framework.fWorld
 {
     public class Entity
     {
+        public static bool IsEntityInCameraView(GTA.Entity entity)
+        {
+            if (entity == null || !entity.Exists()) return false;
+
+            if (Game.Player.Character.IsInVehicle() &&
+                Game.Player.Character.CurrentVehicle == entity)
+                return true;
+
+            var outMin = new OutputArgument();
+            var outMax = new OutputArgument();
+
+            Function.Call(Hash.GET_MODEL_DIMENSIONS, entity.Model.Hash, outMin, outMax);
+
+            Vector3 min = outMin.GetResult<Vector3>();
+            Vector3 max = outMax.GetResult<Vector3>();
+
+            Vector3[] localCorners = new Vector3[]
+            {
+        new Vector3(min.X, min.Y, min.Z),
+        new Vector3(min.X, min.Y, max.Z),
+        new Vector3(min.X, max.Y, min.Z),
+        new Vector3(min.X, max.Y, max.Z),
+        new Vector3(max.X, min.Y, min.Z),
+        new Vector3(max.X, min.Y, max.Z),
+        new Vector3(max.X, max.Y, min.Z),
+        new Vector3(max.X, max.Y, max.Z),
+            };
+
+            foreach (Vector3 localOffset in localCorners)
+            {
+                Vector3 worldPos = Function.Call<Vector3>(
+                    Hash.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS,
+                    entity,
+                    localOffset.X,
+                    localOffset.Y,
+                    localOffset.Z
+                );
+
+                var outX = new OutputArgument();
+                var outY = new OutputArgument();
+
+                bool onScreen = Function.Call<bool>(
+                    Hash.GET_SCREEN_COORD_FROM_WORLD_COORD,
+                    worldPos.X, worldPos.Y, worldPos.Z,
+                    outX, outY
+                );
+
+                if (!onScreen) continue;
+
+                float sx = outX.GetResult<float>();
+                float sy = outY.GetResult<float>();
+
+                if (sx >= 0f && sx <= 1f && sy >= 0f && sy <= 1f)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static void CreateModelHide(Vector3 xyz, float radius, int modelHash, bool p5)
+            => Function.Call(Hash.CREATE_​MODEL_​HIDE, xyz.X, xyz.Y, xyz.Z, radius, modelHash, p5);
+
+        public static void CreateModelHide(float x, float y, float z, float radius, int modelHash, bool p5)
+            => Function.Call(Hash.CREATE_​MODEL_​HIDE, x, y, z, radius, modelHash, p5);
+
+        public static Vector3 GetEntityCoords(GTA.Entity entity, bool alive)
+            => Function.Call<Vector3>(Hash.GET_ENTITY_COORDS, entity, alive);
+
+        public static unsafe void SetPedAsNoLongerNeeded(GTA.Ped ped)
+            => Function.Call(Hash.SET_PED_AS_NO_LONGER_NEEDED, &ped);
+
+        public static void SetEntityShouldFreezeWaitingOnCollision(GTA.Entity entity, bool toggle)
+            => Function.Call(Hash.SET_​ENTITY_​SHOULD_​FREEZE_​WAITING_​ON_​COLLISION, entity, toggle);
+
+        public static void FreezeEntityPosition(GTA.Entity entity, bool toggle)
+            => Function.Call(Hash.FREEZE_​ENTITY_​POSITION, entity, toggle);
+
+        public static void SetEntityOnlyDamagedByPlayer(GTA.Entity entity, bool toggle)
+            => Function.Call(Hash.SET_ENTITY_ONLY_DAMAGED_BY_PLAYER, entity, toggle);
+
+        public static bool IsEntityDead(GTA.Entity entity, bool p1)
+            => Function.Call<bool>(Hash.IS_ENTITY_DEAD, entity, p1);
+
+        public static void SetEntityAnimSpeed(GTA.Entity entity, string animDictionary, string animName, float speedMultiplier)
+            => Function.Call(Hash.SET_ENTITY_ANIM_SPEED, entity, animDictionary, animName, speedMultiplier);
+
+        public static void SetEntityAnimCurrentTime(GTA.Entity entity, string animDictionary, string animName, float time)
+            => Function.Call(Hash.SET_ENTITY_ANIM_CURRENT_TIME, entity, animDictionary, animName, time);
+
+        public static bool PlayEntityAnim(GTA.Entity entity, string animName, string animDict, float p3, bool loop, bool stayInAnim, bool p6, float delta, int bitset = 0)
+            => Function.Call<bool>(Hash.PLAY_ENTITY_ANIM, entity, animName, animDict, p3, loop, stayInAnim, p6, delta, bitset);
+
+        public static bool IsEntityAtCoord(GTA.Entity entity, float xPos, float yPos, float zPos, float xSize, float ySize, float zSize, bool p7, bool p8, int p9)
+            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xPos, yPos, zPos, xSize, ySize, zSize, p7, p8, p9);
+
+        public static bool IsEntityAtCoord(GTA.Entity entity, Vector3 xyzPos, Vector3 xyzSize, bool p7, bool p8, int p9)
+            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xyzPos.X, xyzPos.Y, xyzPos.Z, xyzSize.X, xyzSize.Y, xyzSize.Z, p7, p8, p9);
+
         public static void DetachEntity(GTA.Entity entity, bool dynamic, bool collision)
         {
             Function.Call(Hash.DETACH_ENTITY, entity, dynamic, collision);
@@ -167,7 +268,7 @@ namespace IMNOTEPIX.Framework.fWorld
             return Function.Call<bool>(Hash.IS_ENTITY_IN_ANGLED_AREA, entity, x1, y1, z1, x2, y2, z2, width, debug, includeZ, p10);
         }
 
-        [Obsolete("Use entity.Exists() or entity != null and entity.Exists() directly.")]
+        //[Obsolete("Use entity.Exists() or entity != null and entity.Exists() directly.")]
         public static bool DoesEntityExist(GTA.Entity entity)
         {
             return entity != null && entity.Exists();

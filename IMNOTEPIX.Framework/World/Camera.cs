@@ -6,6 +6,14 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Camera
     {
+        public static void SetGameplayCoordHint(float x, float y, float z, int duration, int blendOutDuration, int blendInDuration, int p6)
+            => Function.Call(Hash.SET_GAMEPLAY_COORD_HINT, x, y, z, duration, blendOutDuration, blendInDuration, p6);
+        public static void SetGameplayCoordHint(Vector3 xyz, int duration, int blendOutDuration, int blendInDuration, int p6)
+            => Function.Call(Hash.SET_GAMEPLAY_COORD_HINT, xyz.X, xyz.Y, xyz.Z, duration, blendOutDuration, blendInDuration, p6);
+
+        public static int GetCamViewModeForContext(int context)
+            => Function.Call<int>(Hash.GET_CAM_VIEW_MODE_FOR_CONTEXT, context);
+
         /// <summary>Creates a named camera. Prefer the typed helpers below over calling this directly.</summary>
         public static GTA.Camera CreateCam(string camName, bool createCamera = true)
             => Function.Call<GTA.Camera>(Hash.CREATE_CAM, camName, createCamera);

@@ -22,7 +22,7 @@ namespace IMNOTEPIX.Framework.fBlip
         private static bool IsBlipGameplayBlip(GTA.Blip blip)
             => GameplayBlipSprites.Contains((int)blip.Sprite);
 
-        private static bool IsSpecificBlip_0(GTA.Blip blip)
+        private static bool IsSpecificBlip(GTA.Blip blip)
             => SpecificBlipSprites_0.Contains((int)blip.Sprite);
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace IMNOTEPIX.Framework.fBlip
                     continue;
                 if (IsBlipGameplayBlip(blip))
                     continue;
-                if (IsSpecificBlip_0(blip))
+                if (IsSpecificBlip(blip))
                     continue;
                 if (excludeSet != null && excludeSet.Contains(blip))
                     continue;
@@ -146,7 +146,7 @@ namespace IMNOTEPIX.Framework.fBlip
         }
 
         /// <summary>Creates a coordinate blip with independent X/Y scale values.</summary>
-        public static GTA.Blip CreateBlipForCoordWithParams(Vector3 pos, BlipSprite sprite, BlipColor color, float scaleX, float scaleY, string name, int alpha = 255)
+        public static GTA.Blip CreateBlipForCoordWithParams(Vector3 pos, BlipSprite sprite, BlipColor color, float scaleX, float scaleY, string name, bool isShortRange = false, int alpha = 255)
         {
             GTA.Blip blip = AddBlipForCoord(pos);
             if (blip == null)
@@ -238,5 +238,11 @@ namespace IMNOTEPIX.Framework.fBlip
 
         public static GTA.Blip AddBlipForArea(Vector3 areaCenter, float width, float height)
             => Function.Call<GTA.Blip>(Hash.ADD_BLIP_FOR_AREA, areaCenter.X, areaCenter.Y, areaCenter.Z, width, height);
+
+        public static bool DoesBlipExist(GTA.Blip blip)
+            => Function.Call<bool>(Hash.DOES_BLIP_EXIST, blip);
+
+        public static void SetBlipScale(GTA.Blip blip, float scale)
+            => Function.Call(Hash.SET_BLIP_SCALE, blip, scale);
     }
 }

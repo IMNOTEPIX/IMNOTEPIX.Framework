@@ -1,7 +1,7 @@
 ﻿using GTA.Math;
 using GTA.Native;
 
-namespace IMNOTEPIX.Framework.fWorld.Interior
+namespace IMNOTEPIX.Framework.fWorld.Map
 {
     public class Interior
     {

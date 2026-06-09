@@ -7,25 +7,15 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Misc
     {
-        public enum DispatchType
-        {
-            DT_Invalid,
-            DT_PoliceAutomobile,
-            DT_PoliceHelicopter,
-            DT_FireDepartment,
-            DT_SwatAutomobile,
-            DT_AmbulanceDepartment,
-            DT_PoliceRiders,
-            DT_PoliceVehicleRequest,
-            DT_PoliceRoadBlock,
-            DT_PoliceAutomobileWaitPulledOver,
-            DT_PoliceAutomobileWaitCruising,
-            DT_Gangs,
-            DT_SwatHelicopter,
-            DT_PoliceBoat,
-            DT_ArmyVehicle,
-            DT_BikerBackup
-        }
+
+        public static float GetDistanceBetweenCoords(float x1, float y1, float z1, float x2, float y2, float z2, bool useZ)
+            => Function.Call<float>(Hash.GET_DISTANCE_BETWEEN_COORDS, x1, y1, z1, x2, y2, z2, useZ);
+
+        public static float GetDistanceBetweenCoords(Vector3 xyz1, Vector3 xyz2, bool useZ)
+            => Function.Call<float>(Hash.GET_DISTANCE_BETWEEN_COORDS, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z, useZ);
+
+        public static int GetGameTimer()
+            => Function.Call<int>(Hash.GET_GAME_TIMER);
 
         public static void EnableDispatchService(DispatchType type, bool toggle)
         {
@@ -99,5 +89,25 @@ namespace IMNOTEPIX.Framework.fWorld
 
         public static int GetRandomIntInRange(int startRange, int endRange)
             => Function.Call<int>(Hash.GET_RANDOM_INT_IN_RANGE, startRange, endRange);
+
+        public enum DispatchType
+        {
+            DT_Invalid,
+            DT_PoliceAutomobile,
+            DT_PoliceHelicopter,
+            DT_FireDepartment,
+            DT_SwatAutomobile,
+            DT_AmbulanceDepartment,
+            DT_PoliceRiders,
+            DT_PoliceVehicleRequest,
+            DT_PoliceRoadBlock,
+            DT_PoliceAutomobileWaitPulledOver,
+            DT_PoliceAutomobileWaitCruising,
+            DT_Gangs,
+            DT_SwatHelicopter,
+            DT_PoliceBoat,
+            DT_ArmyVehicle,
+            DT_BikerBackup
+        }
     }
 }

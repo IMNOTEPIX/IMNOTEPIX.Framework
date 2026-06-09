@@ -1,9 +1,22 @@
-﻿using GTA.Native;
+﻿using GTA.Math;
+using GTA.Native;
 
 namespace IMNOTEPIX.Framework.fCore
 {
     public class Math
     {
+        public static Vector3 RotationToDirection(Vector3 rotation)
+        {
+            double pitch = rotation.X * System.Math.PI / 180.0;
+            double yaw = rotation.Z * System.Math.PI / 180.0;
+
+            return new Vector3(
+                (float)(-System.Math.Sin(yaw) * System.Math.Abs(System.Math.Cos(pitch))),
+                (float)(System.Math.Cos(yaw) * System.Math.Abs(System.Math.Cos(pitch))),
+                (float)(System.Math.Sin(pitch))
+            );
+        }
+
         /// <summary>
         /// Clamps <paramref name="value"/> to [min, max].
         /// Note: .NET's Math.Clamp&lt;float&gt; does the same thing — prefer that

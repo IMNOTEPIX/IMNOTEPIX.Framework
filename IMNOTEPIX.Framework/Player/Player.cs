@@ -14,6 +14,9 @@ namespace IMNOTEPIX.Framework.fPlayer
         public static GTA.Ped PlayerPedID()
             => Function.Call<GTA.Ped>(Hash.PLAYER_PED_ID);
 
+        public static GTA.Player PlayerId()
+            => Function.Call<GTA.Player>(Hash.PLAYER_ID);
+
         public static uint GetPlayerModelHash() => (uint)Game.Player.Character.Model.Hash;
 
         public static bool IsFreemodeMale => GetPlayerModelHash() == 1885233650U;
@@ -54,7 +57,7 @@ namespace IMNOTEPIX.Framework.fPlayer
             WriteModelHash(ped, CutsceneModelHash);
         }
 
-        public static unsafe void PlayerModelSetBack(GTA.Ped ped)
+        public static void PlayerModelSetBack(GTA.Ped ped)
         {
             if (IsFreemodeMale)
                 WriteModelHash(ped, 1885233650L);

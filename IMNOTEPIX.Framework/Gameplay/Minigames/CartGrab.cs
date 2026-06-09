@@ -1,7 +1,6 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
-using IMNOTEPIX.Framework.fCore;
 using IMNOTEPIX.Framework.fInterfaces;
 using IMNOTEPIX.Framework.fPlayer;
 using System;
@@ -170,14 +169,10 @@ namespace IMNOTEPIX.Framework.fGameplay.Minigames
         private const float InteractionDistance = 1.75f;
         private const float BagAppearPhase = 0.34f;
         private const float BagRestorePhase = 0.7f;
-        private const float GoldMaxRate = 1.2802f;
+        private const float GoldMaxRate = 1.2f;
         private const string AnimDict = "anim@heists@ornate_bank@grab_cash";
         private const string AudioScene = "DLC_HEIST_MINIGAME_PAC_CASH_GRAB_SCENE";
 
-        // moveBlendRatio values of 1148846080f / 1148846100f passed to SynchronizedScene
-        // methods appear to be type-confusion artifacts — as float literals these are
-        // ~1.149e9, not standard blend ratios (0.0–8.0). Preserved to match Rockstar
-        // script behaviour; verify against the original animation data before changing.
         private const float SceneBlendRatio = 1148846100f;
 
         private static readonly Dictionary<CartType, string> CartModels = new()

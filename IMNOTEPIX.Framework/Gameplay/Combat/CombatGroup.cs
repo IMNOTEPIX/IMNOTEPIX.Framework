@@ -10,6 +10,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
     /// </summary>
     public sealed class CombatGroup
     {
+        private RelationshipGroup _aiTeam = new RelationshipGroup(RelationshipGroupHash.HatesPlayer);
+
         public List<GTA.Ped> Peds { get; } = new List<GTA.Ped>();
 
         private float _lastCheckTime;
@@ -55,8 +57,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             return ped;
         }
 
-        public void AddBlips(string name = "Enemy", float scale = 0.7f,
-                             BlipColor color = BlipColor.Red, int spriteId = 270)
+        public void AddBlips(string name = "Enemy", float scale = 0.7f, BlipColor color = BlipColor.Red, int spriteId = 270)
         {
             foreach (var ped in Peds)
             {
@@ -120,6 +121,16 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             }
         }
 
+        public void SetRelationship()
+        {
+            foreach (var ped in Peds)
+                if (ped != null && ped.Exists())
+                {
+                    ped.RelationshipGroup = _aiTeam;
+                    ped.Task.CombatHatedTargetsAroundPed(1000f);
+                }
+        }
+
         public void ApplyDefaultAttributes()
         {
             foreach (var ped in Peds)
@@ -135,6 +146,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
 
                 foreach (var attr in CombatConfig.DefaultEnableAttributes)
                     fWorld.Ped.SetPedCombatAttributes(ped, attr, true);
+
+                ped.SetCombatFloatAttribute(CombatFloatAttributes.StrafeWhenMovingChance, 1f);
             }
         }
 
@@ -157,8 +170,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
                 return;
 
             var player = Game.Player.Character;
-            bool sameInterior = fWorld.Interior.Interior.GetInteriorFromEntity(ped) == fWorld.Interior.Interior.GetInteriorFromEntity(player);
-            bool sameRoom = fWorld.Interior.Interior.GetRoomKeyFromEntity(ped) == fWorld.Interior.Interior.GetRoomKeyFromEntity(player);
+            bool sameInterior = fWorld.Map.Interior.GetInteriorFromEntity(ped) == fWorld.Map.Interior.GetInteriorFromEntity(player);
+            bool sameRoom = fWorld.Map.Interior.GetRoomKeyFromEntity(ped) == fWorld.Map.Interior.GetRoomKeyFromEntity(player);
 
             blip.Alpha = (sameInterior && sameRoom) ? 255 : 0;
         }

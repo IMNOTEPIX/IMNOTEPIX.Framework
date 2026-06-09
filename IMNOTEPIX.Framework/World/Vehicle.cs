@@ -41,7 +41,7 @@ namespace IMNOTEPIX.Framework.fWorld
             Function.Call(Hash.SWITCH_TRAIN_TRACK, (int)track, enabled);
         }
 
-        public static GTA.Vehicle Create(Model model, Vector3 pos, float heading = 0f)
+        public static GTA.Vehicle CreateVehicle(Model model, Vector3 pos, float heading = 0f)
         {
             GTA.Vehicle veh = GTA.World.CreateVehicle(model, pos, heading);
 
@@ -51,9 +51,9 @@ namespace IMNOTEPIX.Framework.fWorld
             return (veh != null && veh.Exists()) ? veh : null;
         }
 
-        public static GTA.Vehicle CreateForList(List<GTA.Vehicle> list, Model model, Vector3 pos, float heading = 0f)
+        public static GTA.Vehicle CreateVehicleForList(List<GTA.Vehicle> list, Model model, Vector3 pos, float heading = 0f)
         {
-            GTA.Vehicle veh = Create(model, pos, heading);
+            GTA.Vehicle veh = CreateVehicle(model, pos, heading);
 
             if (veh != null && !list.Contains(veh))
                 list.Add(veh);
@@ -61,7 +61,7 @@ namespace IMNOTEPIX.Framework.fWorld
             return veh;
         }
 
-        public static void DeleteList(List<GTA.Vehicle> list)
+        public static void DeleteVehicleList(List<GTA.Vehicle> list)
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -72,7 +72,7 @@ namespace IMNOTEPIX.Framework.fWorld
         }
 
         // Does not resize the array; callers should null out slots if needed.
-        public static void DeleteArray(GTA.Vehicle[] array)
+        public static void DeleteVehicleArray(GTA.Vehicle[] array)
         {
             for (int i = 0; i < array.Length; i++)
             {
@@ -85,7 +85,7 @@ namespace IMNOTEPIX.Framework.fWorld
         /// Sets the primary and secondary paint colours on <paramref name="vehicle"/>.
         /// <see href="https://pastebin.com/pwHci0xK">Colour index reference.</see>
         /// </summary>
-        public static void SetColours(GTA.Vehicle vehicle, int primaryColour, int secondaryColour)
+        public static void SetVehicleColours(GTA.Vehicle vehicle, int primaryColour, int secondaryColour)
         {
             Function.Call(Hash.SET_VEHICLE_COLOURS, vehicle, primaryColour, secondaryColour);
         }
@@ -93,25 +93,25 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <summary>
         /// Marks whether <paramref name="vehicle"/> is considered by the player's targeting system.
         /// </summary>
-        public static void SetConsideredByPlayer(GTA.Vehicle vehicle, bool considered)
+        public static void SetVehicleConsideredByPlayer(GTA.Vehicle vehicle, bool considered)
         {
             Function.Call(Hash.SET_VEHICLE_IS_CONSIDERED_BY_PLAYER, vehicle, considered);
         }
 
         /// <summary>Disables or re-enables a specific mounted weapon on <paramref name="vehicle"/>.</summary>
-        public static void SetWeaponDisabled(GTA.Vehicle vehicle, GTA.Ped owner, Hash weaponHash, bool disabled)
+        public static void DisableVehicleWeapon(GTA.Vehicle vehicle, GTA.Ped owner, Hash weaponHash, bool disabled)
         {
             Function.Call(Hash.DISABLE_VEHICLE_WEAPON, disabled, weaponHash, vehicle, owner);
         }
 
         /// <summary>Returns <c>true</c> if the specified mounted weapon on <paramref name="vehicle"/> is disabled.</summary>
-        public static bool IsWeaponDisabled(GTA.Vehicle vehicle, GTA.Ped owner, Hash weaponHash)
+        public static bool IsVehicleWeaponDisabled(GTA.Vehicle vehicle, GTA.Ped owner, Hash weaponHash)
         {
             return Function.Call<bool>(Hash.IS_VEHICLE_WEAPON_DISABLED, weaponHash, vehicle, owner);
         }
 
         /// <summary>Returns the current engine health of <paramref name="vehicle"/> (0–1000).</summary>
-        public static float GetEngineHealth(GTA.Vehicle vehicle)
+        public static float GetVehicleEngineHealth(GTA.Vehicle vehicle)
         {
             return Function.Call<float>(Hash.GET_VEHICLE_ENGINE_HEALTH, vehicle);
         }
@@ -122,7 +122,7 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <remarks>
         /// Returns <c>true</c> on success.
         /// </remarks>
-        public static bool PlaceOnGround(GTA.Vehicle vehicle, float p1 = 5.0f)
+        public static bool SetVehicleOnProperly(GTA.Vehicle vehicle, float p1 = 5.0f)
         {
             return Function.Call<bool>(Hash.SET_VEHICLE_ON_GROUND_PROPERLY, vehicle, p1);
         }
@@ -130,9 +130,38 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <summary>
         /// Returns <c>true</c> once the vehicle's stuck timer exceeds <paramref name="thresholdMs"/> milliseconds.
         /// </summary>
-        public static bool IsStuckTimerUp(GTA.Vehicle vehicle, int timerIndex, int thresholdMs)
+        public static bool IsVehicleStuckTimerUp(GTA.Vehicle vehicle, int timerIndex, int thresholdMs)
         {
             return Function.Call<bool>(Hash.IS_VEHICLE_STUCK_TIMER_UP, vehicle, timerIndex, thresholdMs);
         }
+
+        public static void SetVehicleStrong(GTA.Vehicle vehicle, bool toggle)
+            => Function.Call(Hash.SET_VEHICLE_STRONG, vehicle, toggle);
+
+        public static GTA.Vehicle CreateVehicle(int modelHash, float x, float y, float z, float heading, bool isNetwork, bool bScriptHostVeh, bool p7)
+            => Function.Call<GTA.Vehicle>(Hash.CREATE_VEHICLE, modelHash, x, y, z, heading, isNetwork, bScriptHostVeh, p7);
+        public static GTA.Vehicle CreateVehicle(int modelHash, Vector3 xyz, float heading, bool isNetwork, bool bScriptHostVeh, bool p7)
+            => Function.Call<GTA.Vehicle>(Hash.CREATE_VEHICLE, modelHash, xyz.X, xyz.Y, xyz.Z, heading, isNetwork, bScriptHostVeh, p7);
+
+        public static void SetVehicleDirtLevel(GTA.Vehicle vehicle, float dirtLevel)
+            => Function.Call(Hash.SET_VEHICLE_DIRT_LEVEL, vehicle, dirtLevel);
+
+        public static GTA.Ped GetPedInVehicleSeat(GTA.Vehicle vehicle, int seatIndex, bool p2)
+            => Function.Call<GTA.Ped>(Hash.GET_PED_IN_VEHICLE_SEAT, vehicle, seatIndex, p2);
+
+        public static void SetVehicleSiren(GTA.Vehicle vehicle, bool toggle)
+            => Function.Call(Hash.SET_VEHICLE_SIREN, vehicle, toggle);
+
+        public static void SetVehicleHasMutedSirens(GTA.Vehicle vehicle, bool toggle)
+            => Function.Call(Hash.SET_VEHICLE_HAS_MUTED_SIRENS, vehicle, toggle);
+
+        public static void SetVehicleEngineHealth(GTA.Vehicle vehicle, float health)
+            => Function.Call(Hash.SET_VEHICLE_ENGINE_HEALTH, vehicle, health);
+
+        public static float GetVehiclePetrolTankHealth(GTA.Vehicle vehicle)
+            => Function.Call<float>(Hash.GET_VEHICLE_PETROL_TANK_HEALTH, vehicle);
+
+        public static void SetVehiclePetrolTankHealth(GTA.Vehicle vehicle, float health)
+            => Function.Call(Hash.SET_VEHICLE_PETROL_TANK_HEALTH, vehicle, health);
     }
 }

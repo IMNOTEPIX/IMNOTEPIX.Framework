@@ -1,13 +1,68 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
+using GTA.UI;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using static System.Windows.Forms.AxHost;
+using Hash = GTA.Native.Hash;
 
 namespace IMNOTEPIX.Framework.fWorld
 {
     public class Ped
     {
+        private static float _lastCheckTime;
+        private static float _lastArrayCheckTime = 700f;
+        public void CheckPed(GTA.Ped ped)
+        {
+            if (Game.GameTime - _lastCheckTime < _lastArrayCheckTime)
+                return;
+            _lastCheckTime = Game.GameTime;
+
+            if (ped == null || !ped.Exists())
+                return;
+
+            UpdateBlipVisibility(ped);
+
+            if (ped.IsDead)
+            {
+                ped.AttachedBlip?.Delete();
+                ped.MarkAsNoLongerNeeded();
+            }
+        }
+
+        public static void CheckPedsInArray(GTA.Ped[] pedArray)
+        {
+            if (Game.GameTime - _lastCheckTime < _lastArrayCheckTime)
+                return;
+            _lastCheckTime = Game.GameTime;
+
+            for (int i = pedArray.Length - 1; i >= 0; i--)
+            {
+                var ped = pedArray[i];
+                if (ped == null || !ped.Exists())
+                    continue;
+
+                UpdateBlipVisibility(ped);
+
+                var currentVehicle = ped.IsInVehicle() ? ped.CurrentVehicle : null;
+
+                if (ped.IsDead)
+                {
+                    ped.AttachedBlip?.Delete();
+
+                    bool allPassengersDead = currentVehicle?.Passengers.All(p => p.IsDead) ?? true;
+
+                    if (allPassengersDead)
+                        currentVehicle?.AttachedBlip?.Delete();
+
+                    ped.MarkAsNoLongerNeeded();
+                }
+            }
+        }
+
         /// <summary>
         /// Updates blip alpha based on whether the ped shares the player's
         /// interior and room. Prunes dead peds from the list.
@@ -15,6 +70,10 @@ namespace IMNOTEPIX.Framework.fWorld
         /// </summary>
         public static void CheckPedsInList(List<GTA.Ped> pedList)
         {
+            if (Game.GameTime - _lastCheckTime < _lastArrayCheckTime)
+                return;
+            _lastCheckTime = Game.GameTime;
+
             for (int i = pedList.Count - 1; i >= 0; i--)
             {
                 var ped = pedList[i];
@@ -26,11 +85,20 @@ namespace IMNOTEPIX.Framework.fWorld
 
                 UpdateBlipVisibility(ped);
 
+                var currentVehicle = ped.IsInVehicle() ? ped.CurrentVehicle : null;
+
                 if (ped.IsDead)
                 {
                     ped.AttachedBlip?.Delete();
+
+                    bool allPassengersDead = currentVehicle?.Passengers.All(p => p.IsDead) ?? true;
+
+                    if (allPassengersDead)
+                        currentVehicle?.AttachedBlip?.Delete();
+
                     ped.MarkAsNoLongerNeeded();
                     pedList.RemoveAt(i);
+
                 }
             }
         }
@@ -84,6 +152,28 @@ namespace IMNOTEPIX.Framework.fWorld
             }
         }
 
+        public static void SetBlipsForPedsInArray(GTA.Ped[] pedArray, string blipName = "Enemy", float scale = 0.7f, BlipColor color = BlipColor.Red, int spriteId = 270)
+        {
+            foreach (var ped in pedArray)
+            {
+                if (ped == null || !ped.Exists()) continue;
+                if (ped.IsDead) continue;
+                if (ped.AttachedBlip != null) continue;
+
+                ped.AddBlip();
+
+                var blip = ped.AttachedBlip;
+                if (blip == null || !blip.Exists()) continue;
+
+                blip.Sprite = (BlipSprite)spriteId;
+                blip.Color = color;
+                blip.Name = blipName;
+                blip.Scale = scale;
+                blip.IsShortRange = true;
+                blip.DisplayType = BlipDisplayType.MiniMapOnly;
+            }
+        }
+
         public static GTA.Ped CreateAndAddToList(List<GTA.Ped> pedList, Model model, Vector3 position, float heading = 0f)
         {
             var ped = GTA.World.CreatePed(model, position, heading);
@@ -113,13 +203,38 @@ namespace IMNOTEPIX.Framework.fWorld
 
         private static void UpdateBlipVisibility(GTA.Ped ped)
         {
-            if (ped.AttachedBlip == null) 
+            if (ped.AttachedBlip == null)
                 return;
 
-            bool sameInterior = Interior.Interior.GetInteriorFromEntity(ped) == Interior.Interior.GetInteriorFromEntity(Game.Player.Character);
-            bool sameRoom = Interior.Interior.GetRoomKeyFromEntity(ped) == Interior.Interior.GetRoomKeyFromEntity(Game.Player.Character);
+            var pedVeh = ped.IsInVehicle() ? ped.CurrentVehicle : ped.LastVehicle;
+
+            bool sameInterior = Map.Interior.GetInteriorFromEntity(ped) == Map.Interior.GetInteriorFromEntity(Game.Player.Character);
+            bool sameRoom = Map.Interior.GetRoomKeyFromEntity(ped) == Map.Interior.GetRoomKeyFromEntity(Game.Player.Character);
 
             ped.AttachedBlip.Alpha = (sameInterior && sameRoom) ? 255 : 0;
+
+            if (pedVeh != null)
+            {
+                ped.AttachedBlip.Alpha = ped.IsInVehicle(pedVeh) ? 0 : 255;
+
+                if (ped.IsInVehicle(pedVeh) && (pedVeh.AttachedBlip == null || !pedVeh.AttachedBlip.Exists()))
+                {
+                    pedVeh.AddBlip();
+                    var blip = pedVeh.AttachedBlip;
+
+                    if (blip != null)
+                    {
+                        blip.Sprite = (BlipSprite)270;
+                        blip.Color = BlipColor.Red;
+                        blip.Name = "Enemy";
+                        blip.Scale = 1f;
+                        blip.IsShortRange = true;
+                        blip.DisplayType = BlipDisplayType.MiniMapOnly;
+                    }
+                }
+
+                pedVeh.AttachedBlip?.Alpha = ped.IsInVehicle(pedVeh) ? 255 : 0;
+            }
         }
 
         public static GTA.Ped CreatePed(Model model, Vector3 pos, float heading = 0)
@@ -274,7 +389,7 @@ namespace IMNOTEPIX.Framework.fWorld
             Function.Call(Hash.SET_PED_AS_COP, ped, toggle);
         }
 
-        [Obsolete("Pass CombatMovement enum instead of a raw int.")]
+        //[Obsolete("Pass CombatMovement enum instead of a raw int.")]
         public static void SetPedCombatMovement(GTA.Ped ped, int combatMovement)
         {
             Function.Call(Hash.SET_PED_COMBAT_MOVEMENT, ped, combatMovement);
@@ -300,6 +415,11 @@ namespace IMNOTEPIX.Framework.fWorld
             Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, ped, attributeID, toggle);
         }
 
+        public static void SetPedCombatAttributes(GTA.Ped ped, int attributeID, bool toggle)
+        {
+            Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, ped, attributeID, toggle);
+        }
+
         public static void SetPedConfigFlag(GTA.Ped ped, int flagId, bool set = true)
         {
             Function.Call(Hash.SET_​PED_​CONFIG_​FLAG, ped, flagId, set);
@@ -309,6 +429,119 @@ namespace IMNOTEPIX.Framework.fWorld
         {
             Function.Call(Hash.SET_PED_CONFIG_FLAG, ped, configFlag, set);
         }
+
+        public static void SetPedMaxMoveBlendRatio(GTA.Ped ped, float value)
+            => Function.Call(Hash.SET_​PED_​MAX_​MOVE_​BLEND_​RATIO, ped, value);
+
+        public static Vector3 GetAnimInitialOffsetPosition(string animDict, string animName, float x, float y, float z, float xRot, float yRot, float zRot, float p8, int p9)
+            => Function.Call<Vector3>(Hash.GET_​ANIM_​INITIAL_​OFFSET_​POSITION, animDict, animName, x, y, z, xRot, yRot, zRot, p8, p9);
+
+        public static Vector3 GetAnimInitialOffsetPosition(string animDict, string animName, Vector3 xyz, Vector3 xyzRot, float p8, int p9)
+            => Function.Call<Vector3>(Hash.GET_​ANIM_​INITIAL_​OFFSET_​POSITION, animDict, animName, xyz.X, xyz.Y, xyz.Z, xyzRot.X, xyzRot.Y, xyzRot.Z, p8, p9);
+
+        public static Vector3 GetAnimInitialOffsetPosition(string animDict, string animName, float x, float y, float z, float xRot, float yRot, float zRot)
+            => Function.Call<Vector3>(Hash.GET_​ANIM_​INITIAL_​OFFSET_​POSITION, animDict, animName, x, y, z, xRot, yRot, zRot);
+
+        public static Vector3 GetAnimInitialOffsetPosition(string animDict, string animName, Vector3 xyz, Vector3 xyzRot)
+            => Function.Call<Vector3>(Hash.GET_​ANIM_​INITIAL_​OFFSET_​POSITION, animDict, animName, xyz.X, xyz.Y, xyz.Z, xyzRot.X, xyzRot.Y, xyzRot.Z);
+
+        public static void SetPedUsingActionMode(GTA.Ped ped, bool p1, int p2, string action)
+            => Function.Call(Hash.SET_​PED_​USING_​ACTION_​MODE, ped, p1, p2, action);
+
+        public static void SetPedUpperBodyDamageOnly(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.SET_​PED_​UPPER_​BODY_​DAMAGE_​ONLY, ped, toggle);
+
+        public static void SetPedRandomComponentVariation(GTA.Ped ped, int p1)
+            => Function.Call(Hash.SET_​PED_​RANDOM_​COMPONENT_​VARIATION, ped, p1);
+
+        public static void SetPedRelationshipGroupHash(GTA.Ped ped, int hash)
+            => Function.Call(Hash.SET_​PED_​RELATIONSHIP_​GROUP_​HASH, ped, hash);
+
+        public static void SetPedAsEnemy(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.SET_​PED_​AS_​ENEMY, ped, toggle);
+        
+        public static void SetPedMaxHealth(GTA.Ped ped, int value)
+            => Function.Call(Hash.SET_​PED_​MAX_​HEALTH, ped, value);
+
+        public static void SetPedDiesWhenInjured(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.SET_​PED_​DIES_​WHEN_​INJURED, ped, toggle);
+
+        public static void SetPedAccuracy(GTA.Ped ped, int accuracy)
+            => Function.Call(Hash.SET_​PED_​ACCURACY, ped, accuracy);
+
+        public static void SetBlockingOfNonTemporaryEvents(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.SET_​BLOCKING_​OF_​NON_​TEMPORARY_​EVENTS, ped, toggle);
+
+        public static void SetPedIntoVehicle(GTA.Ped ped, GTA.Vehicle vehicle, int seatIndex)
+            => Function.Call(Hash.TASK_WARP_PED_INTO_VEHICLE, ped, vehicle, seatIndex);
+
+        public static GTA.Ped CreatePed(int pedType, int modelHash, float x, float y, float z, float heading, bool isNetwork, bool bScriptHostPed)
+            => Function.Call<GTA.Ped>(Hash.CREATE_​PED, pedType, modelHash, x, y, z, heading, isNetwork, bScriptHostPed);
+
+        public static GTA.Ped CreatePed(int pedType, int modelHash, Vector3 xyz, float heading, bool isNetwork, bool bScriptHostPed)
+            => Function.Call<GTA.Ped>(Hash.CREATE_​PED, pedType, modelHash, xyz.X, xyz.Y, xyz.Z, heading, isNetwork, bScriptHostPed);
+
+        public static void SetCombatFloat(GTA.Ped ped, int combatType, float newValue)
+            => Function.Call(Hash.SET_​COMBAT_​FLOAT, ped, combatType, newValue);
+
+        public static void SetCombatFloat(GTA.Ped ped, CombatFloatAttributes combatType, float newValue)
+            => Function.Call(Hash.SET_​COMBAT_​FLOAT, ped, (int)combatType, newValue);
+
+        public static int SetPedPreloadVariationData(GTA.Ped ped, int slot, int drawableId, int textureId)
+            => Function.Call<int>(Hash.SET_​PED_​PRELOAD_​VARIATION_​DATA, ped, slot, drawableId, textureId);
+
+        public static bool HasPedPreloadVariationDataFinished(GTA.Ped ped)
+            => Function.Call<bool>(Hash.HAS_​PED_​PRELOAD_​VARIATION_​DATA_​FINISHED, ped);
+
+        public static bool IsPedInjured(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​INJURED, ped);
+
+        public static void SetPedResetFlag(GTA.Ped ped, int flagId, bool doReset)
+            => Function.Call(Hash.SET_PED_RESET_FLAG, ped, flagId, doReset);
+
+        public static void SetPedSphereDefensiveArea(GTA.Ped ped, float x, float y, float z, float radius, bool p5, bool p6)
+            => Function.Call(Hash.SET_​PED_​SPHERE_​DEFENSIVE_​AREA, ped, x, y, z, radius, p5, p6);
+
+        public static void SetPedSphereDefensiveArea(GTA.Ped ped, Vector3 xyz, float radius, bool p5, bool p6)
+            => Function.Call(Hash.SET_​PED_​SPHERE_​DEFENSIVE_​AREA, ped, xyz.X, xyz.Y, xyz.Z, radius, p5, p6);
+
+        public static int GetPedMaxHealth(GTA.Ped ped)
+            => Function.Call<int>(Hash.GET_​PED_​MAX_​HEALTH, ped);
+
+        public static void RemovePedDefensiveArea(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.REMOVE_PED_DEFENSIVE_AREA, ped, toggle);
+
+        public static bool IsPedInVehicle(GTA.Ped ped, GTA.Vehicle vehicle, bool atGetIn)
+            => Function.Call<bool>(Hash.IS_​PED_​IN_​VEHICLE, ped, vehicle, atGetIn);
+
+        public static bool IsPedInGroup(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​IN_​GROUP, ped);
+
+        public static void RemovePedFromGroup(GTA.Ped ped)
+            => Function.Call(Hash.REMOVE_PED_FROM_GROUP, ped);
+
+        public static bool IsPedShooting(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​SHOOTING, ped);
+
+        public static void ApplyDamageToPed(GTA.Ped ped, int damageAmount, bool p2, int p3, Hash weaponType)
+            => Function.Call(Hash.APPLY_​DAMAGE_​TO_​PED, ped, damageAmount, p2, p3, weaponType);
+
+        public static void ApplyDamageToPed(GTA.Ped ped, int damageAmount)
+            => Function.Call(Hash.APPLY_​DAMAGE_​TO_​PED, ped, damageAmount, true, 0, 0);
+
+        public static unsafe bool AddRelationshipGroup(string name, out int groupHash)
+        {
+            int hash = 0;
+            bool result = Function.Call<bool>(Hash.ADD_​RELATIONSHIP_​GROUP, name, &hash);
+            groupHash = hash;
+            return result;
+        }
+
+        public static bool IsPedInCover(GTA.Ped ped, bool exceptUseWeapon)
+            => Function.Call<bool>(Hash.IS_PED_IN_COVER, ped, exceptUseWeapon);
+
+        public static void RemoveRelationshipGroup(int groupHash)
+            => Function.Call(Hash.REMOVE_​RELATIONSHIP_​GROUP, groupHash);
 
         public enum ExitStates
         {

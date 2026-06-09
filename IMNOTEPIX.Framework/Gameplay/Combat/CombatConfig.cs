@@ -1,5 +1,7 @@
 ﻿using GTA;
 using GTA.Math;
+using System;
+using System.Collections.Generic;
 
 namespace IMNOTEPIX.Framework.fGameplay.Combat
 {
@@ -21,6 +23,8 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
         public fWorld.Ped.CombatMovement Movement { get; set; } = fWorld.Ped.CombatMovement.WillAdvance;
         public fWorld.Ped.CombatAttributes[] EnableAttributes { get; set; } = DefaultEnableAttributes;
         public fWorld.Ped.CombatAttributes[] DisableAttributes { get; set; } = DefaultDisableAttributes;
+
+        public List<Tuple<CombatFloatAttributes, float>> CombatFloat { get; set; } = [];
 
         public bool CanHurt { get; set; } = true;
         public bool CanWrithe { get; set; } = true;
@@ -84,6 +88,12 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
                 2 => fWorld.Ped.CombatMovement.WillAdvance,
                 3 => fWorld.Ped.CombatMovement.WillRetreat,
                 _ => fWorld.Ped.CombatMovement.Defensive
+            },
+            CombatFloat = new List<Tuple<CombatFloatAttributes, float>>
+            {
+                new Tuple<CombatFloatAttributes, float>(CombatFloatAttributes.BlindFireChance, 0.5f),
+                new Tuple<CombatFloatAttributes, float>(CombatFloatAttributes.FightProficiency, 0.5f),
+                new Tuple<CombatFloatAttributes, float>(CombatFloatAttributes.StrafeWhenMovingChance, 1.0f),
             },
             EnableAttributes = NTH_DefaultVaultGuardEnableAttributes,
             DisableAttributes = DefaultDisableAttributes,

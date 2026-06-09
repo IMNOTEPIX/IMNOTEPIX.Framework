@@ -9,15 +9,15 @@ namespace IMNOTEPIX.Framework.fAudio
         // Shared lookup used by ChangeMusicEventIntensity and PrepareMusicEventIntensity.
         private static readonly Dictionary<MusicEventIntensity, string> MusicEventNames = new()
         {
-            { MusicEventIntensity.Idle,            "CH_IDLE"           },
-            { MusicEventIntensity.Silent,          "CH_SILENT"         },
-            { MusicEventIntensity.Suspense,        "CH_SUSPENSE"       },
-            { MusicEventIntensity.MedIntensity,    "CH_MED_INTENSITY"  },
-            { MusicEventIntensity.Gunfight,        "CH_GUNFIGHT"       },
-            { MusicEventIntensity.VehicleAction,   "CH_VEHICLE_ACTION" },
-            { MusicEventIntensity.Delivering,      "CH_DELIVERING"     },
-            { MusicEventIntensity.Fail,            "CH_FAIL"           },
-            { MusicEventIntensity.MusicStop,       "CH_MUSIC_STOP"     },
+            {MusicEventIntensity.Idle, "CH_IDLE"},
+            {MusicEventIntensity.Silent, "CH_SILENT"},
+            {MusicEventIntensity.Suspense, "CH_SUSPENSE"},
+            {MusicEventIntensity.MedIntensity, "CH_MED_INTENSITY"},
+            {MusicEventIntensity.Gunfight, "CH_GUNFIGHT"},
+            {MusicEventIntensity.VehicleAction, "CH_VEHICLE_ACTION"},
+            {MusicEventIntensity.Delivering, "CH_DELIVERING"},
+            {MusicEventIntensity.Fail, "CH_FAIL"},
+            {MusicEventIntensity.MusicStop, "CH_MUSIC_STOP"},
         };
 
         public static int GetSoundId() 
@@ -61,16 +61,18 @@ namespace IMNOTEPIX.Framework.fAudio
         public static bool IsMusicPlaying()
             => Function.Call<bool>(Hash.AUDIO_IS_MUSIC_PLAYING);
 
-        public static void ChangeMusicEventIntensity(MusicEventIntensity intensity)
+        public static bool ChangeMusicEventIntensity(MusicEventIntensity intensity)
         {
             if (MusicEventNames.TryGetValue(intensity, out string eventName))
-                TriggerMusicEvent(eventName);
+                return TriggerMusicEvent(eventName);
+            return false;
         }
 
-        public static void PrepareMusicEventIntensity(MusicEventIntensity intensity)
+        public static bool PrepareMusicEventIntensity(MusicEventIntensity intensity)
         {
             if (MusicEventNames.TryGetValue(intensity, out string eventName))
-                PrepareMusicEvent(eventName);
+                return PrepareMusicEvent(eventName);
+            return false;
         }
 
         /// <returns><c>true</c> once alarm is ready.</returns>
@@ -120,6 +122,24 @@ namespace IMNOTEPIX.Framework.fAudio
 
         public static void PlayPedAmbientSpeech(GTA.Ped ped, string speechName, string speechParam, int unk = 1)
             => Function.Call(Hash.PLAY_PED_AMBIENT_SPEECH_NATIVE, ped, speechName, speechParam, unk);
+
+        public static bool RequestScriptAudioBank(string audioBank, bool p1, int p2 = -1)
+            => Function.Call<bool>(Hash.REQUEST_SCRIPT_AUDIO_BANK, audioBank, p1, p2);
+
+        public static void ReleaseNamedScriptAudioBank(string audioBank)
+            => Function.Call(Hash.RELEASE_NAMED_SCRIPT_AUDIO_BANK, audioBank);
+
+        public static bool HasSoundFinished(int soundId)
+            => Function.Call<bool>(Hash.HAS_SOUND_FINISHED, soundId);
+
+        public static bool IsAlarmPlaying(string alarmName)
+            => Function.Call<bool>(Hash.IS_ALARM_PLAYING, alarmName);
+
+        public static void DisablePedPainAudio(GTA.Ped ped, bool toggle)
+            => Function.Call(Hash.DISABLE_PED_PAIN_AUDIO, ped, toggle);
+
+        public static void StopPedSpeaking(GTA.Ped ped, bool shaking)
+            => Function.Call(Hash.STOP_PED_SPEAKING, ped, shaking);
 
         public enum MusicEventIntensity
         {

@@ -2,7 +2,7 @@
 using GTA.Math;
 using System;
 
-namespace IMNOTEPIX.Framework.fWorld.Interior
+namespace IMNOTEPIX.Framework.fWorld.Map
 {
     public class PrologueMap : Script
     {

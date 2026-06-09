@@ -12,10 +12,6 @@ namespace IMNOTEPIX.Framework.fCore
         public static List<string> DebugAnimDicts = new List<string>();
         public static List<GTA.Prop> DebugProps = new List<GTA.Prop>();
 
-        // STA threading is required by the Windows clipboard API.
-        // Handled via explicit thread setup — [STAThread] on non-entry-point
-        // methods has no effect and is not used here.
-
         public static void CopyPlayerPosWithAddons()
         {
             var pos = Game.Player.Character.Position;

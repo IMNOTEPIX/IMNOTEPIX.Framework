@@ -24,11 +24,9 @@ namespace IMNOTEPIX.Framework.fCore
 
             animDictList?.Add(dict);
 
+            Function.Call(Hash.REQUEST_ANIM_DICT, dict);
             while (!Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, dict))
-            {
-                Function.Call(Hash.REQUEST_ANIM_DICT, dict);
                 GTA.Script.Yield();
-            }
 
             return dict;
         }
@@ -94,5 +92,9 @@ namespace IMNOTEPIX.Framework.fCore
         /// </summary>
         public static void SetMapDataCullboxEnabled(string name, bool enabled)
             => Function.Call(Hash.SET_MAPDATACULLBOX_ENABLED, name, enabled);
+
+
+        public static void SetModelAsNoLongerNeeded(int model)
+            => Function.Call(Hash.SET_​MODEL_​AS_​NO_​LONGER_​NEEDED, model);
     }
 }

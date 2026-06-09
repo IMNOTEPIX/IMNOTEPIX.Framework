@@ -5,7 +5,7 @@ using GTA.UI;
 using System;
 using System.Collections.Generic;
 
-namespace IMNOTEPIX.Framework.fWorld.Interior
+namespace IMNOTEPIX.Framework.fWorld.Map
 {
     // FULL CLUTTER DONT TOUCH THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // FULL CLUTTER DONT TOUCH THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -273,6 +273,7 @@ namespace IMNOTEPIX.Framework.fWorld.Interior
                 "hei_ch1_06e_mansion_original",
                 "hei_ch1_06e_props_original",
                 "hei_ch1_roads_original",
+                "hei_ch1_06f_mansion_original"
             },
             [MansionID.Vinewood] = new[]
             {
@@ -292,6 +293,13 @@ namespace IMNOTEPIX.Framework.fWorld.Interior
             RequestMansion(Richman);
             RequestMansion(Vinewood);
             RequestMansion(Tongva);
+        }
+
+        public static void RemoveMansions()
+        {
+            RemoveMansion(Richman);
+            RemoveMansion(Vinewood);
+            RemoveMansion(Tongva);
         }
 
         public static void RequestMansion(MansionConfig cfg)
@@ -321,6 +329,15 @@ namespace IMNOTEPIX.Framework.fWorld.Interior
                 foreach (var ipl in _restoreRequest[cfg.ID])
                     Interior.RequestIpl(ipl);
             }
+        }
+
+        public static void RemoveMansion(MansionConfig cfg)
+        {
+            foreach (var ipl in _restoreRemove[cfg.ID])
+                Interior.RemoveIpl(ipl);
+
+            foreach (var ipl in _restoreRequest[cfg.ID])
+                Interior.RequestIpl(ipl);
         }
 
         // ─────────────────────────────────────────────────────────────────────

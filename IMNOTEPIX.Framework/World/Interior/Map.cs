@@ -2,18 +2,21 @@
 using GTA.UI;
 using System.Collections.Generic;
 
-namespace IMNOTEPIX.Framework.fWorld.Interior
+namespace IMNOTEPIX.Framework.fWorld.Map
 {
-    public class MPMap
+    public class Map
     {
         public static bool IsMpMapLoaded 
             => Function.Call<bool>(Hash.IS_IPL_ACTIVE, "xm_hatch_closed");
 
-        public static void LoadMpMaps()
+        public static void LoadMP()
         {
-            if (!Function.Call<bool>(Hash.IS_IPL_ACTIVE, "xm_hatch_closed"))
+            if (!IsMpMapLoaded)
             {
                 Function.Call(Hash.ON_ENTER_MP);
+                Function.Call(Hash.SET_INSTANCE_PRIORITY_MODE, 1);
+                Function.Call(Hash.REVERT_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP_SP"));
+                Function.Call(Hash.EXECUTE_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP"));
                 LoadingPrompt.Hide();
                 Function.Call(Hash.CLEAR_ALL_HELP_MESSAGES);
             }
@@ -22,6 +25,27 @@ namespace IMNOTEPIX.Framework.fWorld.Interior
                 Function.Call(Hash.REMOVE_IPL, str);
             }
             foreach (string str2 in LoadAllIPLS)
+            {
+                Function.Call(Hash.REMOVE_IPL, str2);
+                Function.Call(Hash.REQUEST_IPL, str2);
+            }
+        }
+        public static void LoadSP()
+        {
+            if (IsMpMapLoaded)
+            {
+                Function.Call(Hash.ON_ENTER_SP);
+                Function.Call(Hash.SET_INSTANCE_PRIORITY_MODE, 0);
+                Function.Call(Hash.REVERT_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP"));
+                Function.Call(Hash.EXECUTE_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP_SP"));
+                LoadingPrompt.Hide();
+                Function.Call(Hash.CLEAR_ALL_HELP_MESSAGES);
+            }
+            foreach (string str in LoadAllIPLS)
+            {
+                Function.Call(Hash.REMOVE_IPL, str);
+            }
+            foreach (string str2 in RemoveOnlyIPLS)
             {
                 Function.Call(Hash.REMOVE_IPL, str2);
                 Function.Call(Hash.REQUEST_IPL, str2);

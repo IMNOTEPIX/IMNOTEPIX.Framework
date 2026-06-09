@@ -3,7 +3,7 @@ using GTA.Native;
 
 namespace IMNOTEPIX.Framework.fUI.Scaleforms
 {
-    public class MissionShard
+    public class MidsizedShard
     {
         // ─────────────────────────────────────────────────────────────────────
         // Sound configuration — private constants; not intended to be mutated

@@ -1,4 +1,5 @@
-﻿using GTA.Math;
+﻿using GTA;
+using GTA.Math;
 using GTA.Native;
 
 namespace IMNOTEPIX.Framework.fWorld
@@ -91,6 +92,61 @@ namespace IMNOTEPIX.Framework.fWorld
             /// </summary>
             public static void SetRoadsInArea(Vector3 xyz1, Vector3 xyz2, bool nodeEnabled, bool unknown2)
                => Function.Call(Hash.SET_ROADS_IN_AREA, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z, nodeEnabled, unknown2);
+        }
+
+        public class Navmesh
+        {
+
+            public static void AddNavmeshRequiredRegion(float x, float y, float radius)
+                => Function.Call(Hash.ADD_NAVMESH_REQUIRED_REGION, x, y, radius);
+
+            public static void AddNavmeshRequiredRegion(Vector2 xy, float radius)
+                => Function.Call(Hash.ADD_NAVMESH_REQUIRED_REGION, xy.X, xy.Y, radius);
+
+            public static void RemoveNavmeshRequiredRegions()
+                => Function.Call(Hash.REMOVE_NAVMESH_REQUIRED_REGIONS);
+
+            public static bool IsNavmeshRequiredRegionInUse()
+                => Function.Call<bool>(Hash.IS_NAVMESH_REQUIRED_REGION_IN_USE);
+
+            public static void DisableNavmeshInArea(float x1, float y1, float z1, float x2, float y2, float z2, bool toggle)
+                => Function.Call(Hash.DISABLE_NAVMESH_IN_AREA, x1, y1, z1, x2, y2, z2, toggle);
+
+            public static void DisableNavmeshInArea(Vector3 xyz1, Vector3 xyz2, bool toggle)
+                => Function.Call(Hash.DISABLE_NAVMESH_IN_AREA, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z, toggle);
+
+            public static bool AreAllNavmeshRegionsLoaded()
+                => Function.Call<bool>(Hash.ARE_ALL_NAVMESH_REGIONS_LOADED);
+
+            public static bool IsNavmeshLoadedInArea(float x1, float y1, float z1, float x2, float y2, float z2)
+                => Function.Call<bool>(Hash.IS_NAVMESH_LOADED_IN_AREA, x1, y1, z1, x2, y2, z2);
+
+            public static bool IsNavmeshLoadedInArea(Vector3 xyz1, Vector3 xyz2)
+                => Function.Call<bool>(Hash.IS_NAVMESH_LOADED_IN_AREA, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z);
+
+            public static int GetNumNavmeshesExistingInArea(float x1, float y1, float z1, float x2, float y2, float z2)
+                => Function.Call<int>(Hash.GET_NUM_NAVMESHES_EXISTING_IN_AREA, x1, y1, z1, x2, y2, z2);
+
+            public static int GetNumNavmeshesExistingInArea(Vector3 xyz1, Vector3 xyz2)
+                => Function.Call<int>(Hash.GET_NUM_NAVMESHES_EXISTING_IN_AREA, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z);
+
+            public static int AddNavmeshBlockingObject(float x, float y, float z, float width, float length, float height, float heading, bool bPermanent, int flags)
+                => Function.Call<int>(Hash.ADD_NAVMESH_BLOCKING_OBJECT, x, y, z, width, length, height, heading, bPermanent, flags);
+
+            public static int AddNavmeshBlockingObject(Vector3 xyz, Vector3 scale, float heading, bool bPermanent, int flags)
+                => Function.Call<int>(Hash.ADD_NAVMESH_BLOCKING_OBJECT, xyz.X, xyz.Y, xyz.Z, scale.X, scale.Y, scale.Z, heading, bPermanent, flags);
+
+            public static void UpdateNavmeshBlockingObject(int handle, float posX, float posY, float posZ, float scaleX, float scaleY, float scaleZ, float heading, int flags)
+                => Function.Call(Hash.UPDATE_NAVMESH_BLOCKING_OBJECT, handle, posX, posY, posZ, scaleX, scaleY, scaleZ, heading, flags);
+
+            public static void UpdateNavmeshBlockingObject(int handle, Vector3 position, Vector3 scale, float heading, int flags)
+                => Function.Call(Hash.UPDATE_NAVMESH_BLOCKING_OBJECT, handle, position.X, position.Y, position.Z, scale.X, scale.Y, scale.Z, heading, flags);
+
+            public static void RemoveNavmeshBlockingObject(int handle)
+                => Function.Call(Hash.REMOVE_NAVMESH_BLOCKING_OBJECT, handle);
+
+            public static bool DoesNavmeshBlockingObjectExist(int handle)
+                => Function.Call<bool>(Hash.DOES_NAVMESH_BLOCKING_OBJECT_EXIST, handle);
         }
     }
 }
