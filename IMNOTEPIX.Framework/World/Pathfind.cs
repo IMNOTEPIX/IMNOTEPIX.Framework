@@ -57,6 +57,12 @@ namespace IMNOTEPIX.Framework.fWorld
             /// </summary>
             public static void SetAllowStreamPrologueNodes(bool toggle)
                => Function.Call(Hash.SET_ALLOW_STREAM_PROLOGUE_NODES, toggle);
+
+            public static bool RequestPathNodesInAreaThisFrame(float x1, float y1, float x2, float y2)
+                => Function.Call<bool>(Hash.REQUEST_​PATH_​NODES_​IN_​AREA_​THIS_​FRAME, x1, y1, x2, y2);
+
+            public static bool RequestPathNodesInAreaThisFrame(Vector2 xy1, Vector2 xy2)
+                => Function.Call<bool>(Hash.REQUEST_​PATH_​NODES_​IN_​AREA_​THIS_​FRAME, xy1.X, xy1.Y, xy2.X, xy2.Y);
         }
 
         public class Roads

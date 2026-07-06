@@ -27,11 +27,10 @@ namespace IMNOTEPIX.Framework.fCore
         /// </summary>
         public static void StartScript(string scriptName, int stackSize)
         {
+            Function.Call(Hash.REQUEST_SCRIPT, scriptName);
+
             while (!Function.Call<bool>(Hash.HAS_SCRIPT_LOADED, scriptName))
-            {
-                Function.Call(Hash.REQUEST_SCRIPT, scriptName);
-                GTA.Script.Yield();
-            }
+                GTA.Script.Wait(0);
 
             Function.Call(Hash.START_NEW_SCRIPT, scriptName, stackSize);
             Function.Call(Hash.SET_SCRIPT_AS_NO_LONGER_NEEDED, scriptName);

@@ -473,7 +473,7 @@ namespace IMNOTEPIX.Framework.fWorld
             => Function.Call(Hash.SET_​BLOCKING_​OF_​NON_​TEMPORARY_​EVENTS, ped, toggle);
 
         public static void SetPedIntoVehicle(GTA.Ped ped, GTA.Vehicle vehicle, int seatIndex)
-            => Function.Call(Hash.TASK_WARP_PED_INTO_VEHICLE, ped, vehicle, seatIndex);
+            => Function.Call(Hash.SET_PED_INTO_VEHICLE, ped, vehicle, seatIndex);
 
         public static GTA.Ped CreatePed(int pedType, int modelHash, float x, float y, float z, float heading, bool isNetwork, bool bScriptHostPed)
             => Function.Call<GTA.Ped>(Hash.CREATE_​PED, pedType, modelHash, x, y, z, heading, isNetwork, bScriptHostPed);
@@ -542,6 +542,30 @@ namespace IMNOTEPIX.Framework.fWorld
 
         public static void RemoveRelationshipGroup(int groupHash)
             => Function.Call(Hash.REMOVE_​RELATIONSHIP_​GROUP, groupHash);
+
+        public static GTA.Ped CreatePedInsideVehicle(GTA.Vehicle vehicle, int pedType, int modelHash, int seat, bool isNetwork = false, bool bScriptHostPed = false)
+            => Function.Call<GTA.Ped>(Hash.CREATE_​PED_​INSIDE_​VEHICLE, vehicle, pedType, modelHash, seat, isNetwork, bScriptHostPed);
+
+        public static GTA.Ped CreatePedInsideVehicle(GTA.Vehicle vehicle, int modelHash, int seat)
+            => Function.Call<GTA.Ped>(Hash.CREATE_​PED_​INSIDE_​VEHICLE, vehicle, 26, modelHash, seat, false, false);
+
+        public static bool CanCreateRandomDriver()
+            => Function.Call<bool>(Hash.CAN_​CREATE_​RANDOM_​DRIVER);
+
+        public static GTA.Ped CreateRandomPedAsDriver(GTA.Vehicle vehicle, bool returnHandle)
+            => Function.Call<GTA.Ped>(Hash.CREATE_​RANDOM_​PED_​AS_​DRIVER, vehicle, returnHandle);
+
+        public static void SetPedFleeAttributes(GTA.Ped ped, int attributeFlags, bool enable)
+            => Function.Call(Hash.SET_​PED_​FLEE_​ATTRIBUTES, ped, attributeFlags, enable);
+
+        public static bool IsPedRagdoll(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​RAGDOLL, ped);
+
+        public static bool IsPedAPlayer(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​A_​PLAYER, ped);
+
+        public static bool IsPedMale(GTA.Ped ped)
+            => Function.Call<bool>(Hash.IS_​PED_​MALE, ped);
 
         public enum ExitStates
         {

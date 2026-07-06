@@ -48,7 +48,7 @@ namespace IMNOTEPIX.Framework.fUI._3D
         /// <summary>
         /// Updates alpha and draws the marker. Call once per OnTick.
         /// </summary>
-        public void Draw(Graphics.MarkerTypes type, Vector3 pos, Vector3 dir, Vector3 rot, Vector3 scale, int red, int green, int blue, bool bobUpAndDown = false, bool faceCamera = false, int p19 = 2, bool rotateY = false, string textureDict = null, string textureName = null, bool drawOnEnts = false)
+        public void Draw(Graphics.MarkerTypes type, Vector3 pos, Vector3 dir, Vector3 rot, Vector3 scale, int red, int green, int blue, bool bobUpAndDown = false, bool faceCamera = false, int rotationOrder = 2, bool rotateY = false, string textureDict = null, string textureName = null, bool drawOnEnts = false)
         {
             // Don't update alpha while wheels/pause menu are open
             bool menuOpen = Hud.IsHudComponentActive(HudComponent.WeaponWheel) || Hud.IsHudComponentActive(HudComponent.RadioStationsWheel) || Hud.IsPauseMenuActive();
@@ -65,7 +65,7 @@ namespace IMNOTEPIX.Framework.fUI._3D
 
             if (_currentAlpha <= 0) return;
 
-            Graphics.DrawMarker(type, pos, dir, rot, scale, red, green, blue, _currentAlpha, bobUpAndDown, faceCamera, p19, rotateY, textureDict, textureName, drawOnEnts);
+            Graphics.DrawMarker(type, pos, dir, rot, scale, red, green, blue, _currentAlpha, bobUpAndDown, faceCamera, rotationOrder, rotateY, textureDict, textureName, drawOnEnts);
         }
     }
 }

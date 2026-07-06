@@ -6,6 +6,21 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Camera
     {
+        public static void SetGameplayEntityHint(GTA.Entity entity, float xOffset, float yOffset, float zOffset, bool p4, int time, int easeInTime, int easeOutTime, int p8)
+            => Function.Call(Hash.SET_​GAMEPLAY_​ENTITY_​HINT, entity, xOffset, yOffset, zOffset, p4, time, easeInTime, easeOutTime, p8);
+
+        public static void SetGameplayEntityHint(GTA.Entity entity, Vector3 Offset, bool p4, int time, int easeInTime, int easeOutTime, int p8)
+            => Function.Call(Hash.SET_​GAMEPLAY_​ENTITY_​HINT, entity, Offset.X, Offset.Y, Offset.Z, p4, time, easeInTime, easeOutTime, p8);
+
+        public static void SetCinematicButtonActive(bool toggle)
+            => Function.Call(Hash.SET_​CINEMATIC_​BUTTON_​ACTIVE, toggle);
+
+        public static bool IsSphereVisible(float x, float y, float z, float radius)
+            => Function.Call<bool>(Hash.IS_​SPHERE_​VISIBLE, x, y, z, radius);
+
+        public static bool IsSphereVisible(Vector3 xyz, float radius)
+            => Function.Call<bool>(Hash.IS_​SPHERE_​VISIBLE, xyz.X, xyz.Y, xyz.Z, radius);
+
         public static void SetGameplayCoordHint(float x, float y, float z, int duration, int blendOutDuration, int blendInDuration, int p6)
             => Function.Call(Hash.SET_GAMEPLAY_COORD_HINT, x, y, z, duration, blendOutDuration, blendInDuration, p6);
         public static void SetGameplayCoordHint(Vector3 xyz, int duration, int blendOutDuration, int blendInDuration, int p6)

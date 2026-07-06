@@ -310,9 +310,15 @@ namespace IMNOTEPIX.Framework.fUI
         public static void ClearGPSMultiRoute()
             => Function.Call(Hash.CLEAR_GPS_MULTI_ROUTE);
 
+        public static void SetGPSFlashes(bool toggle)
+            => Function.Call(Hash.SET_​GPS_​FLASHES, toggle);
+
         #endregion
 
         #region GTA Hud Components
+
+        public static void DisplayCash(bool toggle)
+            => Function.Call(Hash.DISPLAY_CASH, !toggle);
 
         public static void RadarAndHud(bool radar, bool hud)
         {

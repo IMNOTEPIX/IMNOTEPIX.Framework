@@ -3,12 +3,43 @@ using GTA.Math;
 using GTA.Native;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.Remoting.Messaging;
+using static IMNOTEPIX.Framework.fWorld.Pathfind;
 
 namespace IMNOTEPIX.Framework.fWorld
 {
     public class Entity
     {
+        public static GTA.Ped GetPedIndexFromEntityIndex(GTA.Entity entity)
+            => Function.Call<GTA.Ped>(Hash.GET_​PED_​INDEX_​FROM_​ENTITY_​INDEX, entity);
+
+        public static float GetEntitySpeed(GTA.Entity entity)
+            => Function.Call<float>(Hash.GET_​ENTITY_​SPEED, entity);
+
+        public static bool IsEntityAnObject(GTA.Entity entity)
+            => Function.Call<bool>(Hash.IS_​ENTITY_​AN_​OBJECT, entity);
+
+        public static bool IsEntityAPed(GTA.Entity entity)
+            => Function.Call<bool>(Hash.IS_​ENTITY_​A_​PED, entity);
+
+        public static bool IsEntityAVehicle(GTA.Entity entity)
+            => Function.Call<bool>(Hash.IS_​ENTITY_​A_​VEHICLE, entity);
+
+        public static bool IsEntityTouchingEntity(GTA.Entity entity, GTA.Entity targetEntity)
+            => Function.Call<bool>(Hash.IS_​ENTITY_​TOUCHING_​ENTITY, entity, targetEntity);
+
+        public static bool IsEntityOnScreen(GTA.Entity entity)
+            => Function.Call<bool>(Hash.IS_​ENTITY_​ON_​SCREEN, entity);
+
+        public static void SetEntityRotation(GTA.Entity entity, float pitch, float roll, float yaw, int rotationOrder, bool p5)
+            => Function.Call(Hash.SET_​ENTITY_​ROTATION, entity, pitch, roll, yaw, rotationOrder, p5);
+
+        public static void SetEntityRotation(GTA.Entity entity, Vector3 rot, int rotationOrder, bool p5)
+            => Function.Call(Hash.SET_​ENTITY_​ROTATION, entity, rot.X, rot.Y, rot.Z, rotationOrder, p5);
+
+        public static void SetCanAutoVaultOnEntity(GTA.Entity entity, bool toggle)
+            => Function.Call(Hash.SET_​CAN_​AUTO_​VAULT_​ON_​ENTITY, entity, toggle);
         public static bool IsEntityInCameraView(GTA.Entity entity)
         {
             if (entity == null || !entity.Exists()) return false;
@@ -17,55 +48,7 @@ namespace IMNOTEPIX.Framework.fWorld
                 Game.Player.Character.CurrentVehicle == entity)
                 return true;
 
-            var outMin = new OutputArgument();
-            var outMax = new OutputArgument();
-
-            Function.Call(Hash.GET_MODEL_DIMENSIONS, entity.Model.Hash, outMin, outMax);
-
-            Vector3 min = outMin.GetResult<Vector3>();
-            Vector3 max = outMax.GetResult<Vector3>();
-
-            Vector3[] localCorners = new Vector3[]
-            {
-        new Vector3(min.X, min.Y, min.Z),
-        new Vector3(min.X, min.Y, max.Z),
-        new Vector3(min.X, max.Y, min.Z),
-        new Vector3(min.X, max.Y, max.Z),
-        new Vector3(max.X, min.Y, min.Z),
-        new Vector3(max.X, min.Y, max.Z),
-        new Vector3(max.X, max.Y, min.Z),
-        new Vector3(max.X, max.Y, max.Z),
-            };
-
-            foreach (Vector3 localOffset in localCorners)
-            {
-                Vector3 worldPos = Function.Call<Vector3>(
-                    Hash.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS,
-                    entity,
-                    localOffset.X,
-                    localOffset.Y,
-                    localOffset.Z
-                );
-
-                var outX = new OutputArgument();
-                var outY = new OutputArgument();
-
-                bool onScreen = Function.Call<bool>(
-                    Hash.GET_SCREEN_COORD_FROM_WORLD_COORD,
-                    worldPos.X, worldPos.Y, worldPos.Z,
-                    outX, outY
-                );
-
-                if (!onScreen) continue;
-
-                float sx = outX.GetResult<float>();
-                float sy = outY.GetResult<float>();
-
-                if (sx >= 0f && sx <= 1f && sy >= 0f && sy <= 1f)
-                    return true;
-            }
-
-            return false;
+            return entity.IsOnScreen;
         }
 
         public static void CreateModelHide(Vector3 xyz, float radius, int modelHash, bool p5)
@@ -101,11 +84,17 @@ namespace IMNOTEPIX.Framework.fWorld
         public static bool PlayEntityAnim(GTA.Entity entity, string animName, string animDict, float p3, bool loop, bool stayInAnim, bool p6, float delta, int bitset = 0)
             => Function.Call<bool>(Hash.PLAY_ENTITY_ANIM, entity, animName, animDict, p3, loop, stayInAnim, p6, delta, bitset);
 
-        public static bool IsEntityAtCoord(GTA.Entity entity, float xPos, float yPos, float zPos, float xSize, float ySize, float zSize, bool p7, bool p8, int p9)
-            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xPos, yPos, zPos, xSize, ySize, zSize, p7, p8, p9);
+        /// <summary>
+        /// transportMode: Checks the transport mode the ped is using, only does something if entity is a ped.Transport modes are: 0 (any), 1 (on foot), 2 (in vehicle)
+        /// </summary>
+        public static bool IsEntityAtCoord(GTA.Entity entity, float xPos, float yPos, float zPos, float xSize, float ySize, float zSize, bool highlightArea, bool do3dCheck, int transportMode)
+            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xPos, yPos, zPos, xSize, ySize, zSize, highlightArea, do3dCheck, transportMode);
 
-        public static bool IsEntityAtCoord(GTA.Entity entity, Vector3 xyzPos, Vector3 xyzSize, bool p7, bool p8, int p9)
-            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xyzPos.X, xyzPos.Y, xyzPos.Z, xyzSize.X, xyzSize.Y, xyzSize.Z, p7, p8, p9);
+        /// <summary>
+        /// <inheritdoc cref="IsEntityAtCoord"/>
+        /// </summary>
+        public static bool IsEntityAtCoord(GTA.Entity entity, Vector3 xyzPos, Vector3 xyzSize, bool highlightArea, bool do3dCheck, int transportMode)
+            => Function.Call<bool>(Hash.IS_ENTITY_AT_COORD, entity, xyzPos.X, xyzPos.Y, xyzPos.Z, xyzSize.X, xyzSize.Y, xyzSize.Z, highlightArea, do3dCheck, transportMode);
 
         public static void DetachEntity(GTA.Entity entity, bool dynamic, bool collision)
         {

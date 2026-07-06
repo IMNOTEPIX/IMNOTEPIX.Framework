@@ -477,7 +477,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Minigames
 
             DisplayStartGrabText();
 
-            if (Game.IsControlJustPressed(Control.Context))
+            if (GTA.Input.Controls.IsDisabledControlJustPressed(GTA.Input.ControlType.PlayerControl, GTA.Input.ControlAction.Context))
                 StartGrabMinigame(animStartPos);
         }
 
@@ -569,14 +569,14 @@ namespace IMNOTEPIX.Framework.fGameplay.Minigames
         private void UpdateGrabState()
         {
             bool isPlayingGrab = fWorld.Entity.IsEntityPlayingAnim(fPlayer.Player.Character, AnimDict, "grab", 3);
-            bool isCancelPressed = Game.IsControlJustPressed(Input.IsUsingKeyboardAndMouse(2) ? Control.CursorCancel : Control.FrontendCancel);
+            bool isCancelPressed = GTA.Input.Controls.IsDisabledControlJustPressed(GTA.Input.ControlType.PlayerControl, Input.IsUsingKeyboardAndMouse(2) ? GTA.Input.ControlAction.CursorCancel : GTA.Input.ControlAction.FrontendCancel);
 
             if (isPlayingGrab)
             {
                 if (isCancelPressed)
                 {
                     wantsToExit = true;
-                    return;
+                    //return;
                 }
                 UpdateGrabAnimation();
                 HandleGrabEvents();
@@ -586,7 +586,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Minigames
                 if (isCancelPressed)
                 {
                     PlayExitScene();
-                    return;
+                    //return;
                 }
 
                 if (!fWorld.Entity.IsEntityPlayingAnim(fPlayer.Player.Character, AnimDict, "grab_idle", 3))
@@ -607,46 +607,52 @@ namespace IMNOTEPIX.Framework.fGameplay.Minigames
 
         private void HandleGrabEvents()
         {
-            if (fWorld.Entity.HasAnimEventFired(fPlayer.Player.Character, "CASH_APPEAR") && bar != null && bar.Exists() && !bar.IsVisible)
-                bar.IsVisible = true;
-
-            if (fWorld.Entity.HasAnimEventFired(fPlayer.Player.Character, "RELEASE_CASH_DESTROY"))
+            lock (this)
             {
-                if (bar != null && bar.Exists() && bar.IsVisible)
-                    bar.IsVisible = false;
+                if (fWorld.Entity.HasAnimEventFired(fPlayer.Player.Character, "CASH_APPEAR") && bar != null && bar.Exists() && !bar.IsVisible)
+                    bar.IsVisible = true;
 
-                PlayCashSound();
-
-                int cashAmount = GetRandomCashAmount();
-                OnValueAdded(cashAmount, true);
-
-                if (wantsToExit)
+                if (fWorld.Entity.HasAnimEventFired(fPlayer.Player.Character, "RELEASE_CASH_DESTROY"))
                 {
-                    Data.CurrentRate = base.MinRate;
-                    if (Data.CurrentPhase >= 1f)
+                    if (bar != null && bar.Exists() && bar.IsVisible)
+                        bar.IsVisible = false;
+
+                    PlayCashSound();
+
+                    int cashAmount = GetRandomCashAmount();
+                    OnValueAdded(cashAmount, true);
+
+                    if (wantsToExit)
                     {
-                        Screen.ClearHelpText();
-                        RemoveBlip();
-                        IsLooted = true;
+                        if (!bar.IsVisible)
+                        {
+                            Data.CurrentRate = base.MinRate;
+                            if (Data.CurrentPhase >= 1f)
+                            {
+                                Screen.ClearHelpText();
+                                RemoveBlip();
+                                IsLooted = true;
+                            }
+                            PlayExitScene();
+                            wantsToExit = false;
+                            return;
+                        }
                     }
-                    PlayExitScene();
-                    wantsToExit = false;
-                    return;
+
+                    if (Data.CurrentRate == base.MinRate)
+                    {
+                        cartScene!.Rate = 0f;
+                        PlayIdleScene();
+                    }
                 }
 
-                if (Data.CurrentRate == base.MinRate)
+                if (Data.CurrentPhase >= 1f)
                 {
-                    cartScene!.Rate = 0f;
-                    PlayIdleScene();
+                    Screen.ClearHelpText();
+                    RemoveBlip();
+                    IsLooted = true;
+                    PlayExitScene();
                 }
-            }
-
-            if (Data.CurrentPhase >= 1f)
-            {
-                Screen.ClearHelpText();
-                RemoveBlip();
-                IsLooted = true;
-                PlayExitScene();
             }
         }
 

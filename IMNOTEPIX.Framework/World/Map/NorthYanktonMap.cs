@@ -1,10 +1,11 @@
 ﻿using GTA;
 using GTA.Math;
 using System;
+using System.Windows.Forms;
 
 namespace IMNOTEPIX.Framework.fWorld.Map
 {
-    public class PrologueMap : Script
+    public class NorthYanktonMap : Script
     {
         public static bool YankTon = false;
         public static bool YankTonRemove = true;
@@ -43,13 +44,18 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             "prologue_DistantLights"
         };
 
-        public PrologueMap()
+        public NorthYanktonMap()
         {
             Aborted += PrologueMap_Aborted;
         }
 
         private void PrologueMap_Aborted(object sender, EventArgs e)
         {
+            if (YankTon)
+            {
+                fPlayer.Player.PedPos(-1038.744f, -2739.543f, 20.16927f, -30f);
+                Ped.SetPedUsingActionMode(fPlayer.Player.Character, false, -1, "DEFAULT_ACTION");
+            }
             UnloadYankton();
         }
 
@@ -152,9 +158,9 @@ namespace IMNOTEPIX.Framework.fWorld.Map
         /// <summary>
         /// Disable roads in North Yankton
         /// </summary>
-        public static void DisableNorthYanktonRoads()
+        public static void DisableNorthYanktonRoads(bool useRoadEnabledCheck)
         {
-            if (!areRoadsEnabled)
+            if (!areRoadsEnabled && useRoadEnabledCheck)
                 return;
 
             fWorld.Pathfind.Nodes.SetAllowStreamPrologueNodes(false);
@@ -183,7 +189,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
 
             if (areRoadsEnabled)
             {
-                DisableNorthYanktonRoads();
+                DisableNorthYanktonRoads(true);
             }
         }
 

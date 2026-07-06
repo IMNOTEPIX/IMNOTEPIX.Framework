@@ -6,6 +6,9 @@ namespace IMNOTEPIX.Framework.fUI
 {
     public class Graphics
     {
+        public static void AnimpostFxStop(string effectName)
+            => Function.Call(Hash.ANIMPOSTFX_​STOP, effectName);
+
         public static bool GetIsWidescreen()
             => Function.Call<bool>(Hash.GET_IS_WIDESCREEN);
 

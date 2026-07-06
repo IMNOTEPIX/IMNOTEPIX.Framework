@@ -26,7 +26,7 @@ namespace IMNOTEPIX.Framework.fCore
 
             Function.Call(Hash.REQUEST_ANIM_DICT, dict);
             while (!Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, dict))
-                GTA.Script.Yield();
+                GTA.Script.Wait(0);
 
             return dict;
         }
@@ -54,11 +54,9 @@ namespace IMNOTEPIX.Framework.fCore
         /// </summary>
         public static string RequestNamedPTFXAsset(string fxName)
         {
+            Function.Call(Hash.REQUEST_NAMED_PTFX_ASSET, fxName);
             while (!Function.Call<bool>(Hash.HAS_NAMED_PTFX_ASSET_LOADED, fxName))
-            {
-                Function.Call(Hash.REQUEST_NAMED_PTFX_ASSET, fxName);
-                GTA.Script.Yield();
-            }
+                GTA.Script.Wait(0);
 
             return fxName;
         }
@@ -69,8 +67,9 @@ namespace IMNOTEPIX.Framework.fCore
         /// </summary>
         public static string LoadNamedPTFXAsset(string fxName)
         {
+            Function.Call(Hash.REQUEST_NAMED_PTFX_ASSET, fxName);
             if (!Function.Call<bool>(Hash.HAS_NAMED_PTFX_ASSET_LOADED, fxName))
-                Function.Call(Hash.REQUEST_NAMED_PTFX_ASSET, fxName);
+                GTA.Script.Wait(0);
 
             return fxName;
         }
@@ -93,8 +92,13 @@ namespace IMNOTEPIX.Framework.fCore
         public static void SetMapDataCullboxEnabled(string name, bool enabled)
             => Function.Call(Hash.SET_MAPDATACULLBOX_ENABLED, name, enabled);
 
-
         public static void SetModelAsNoLongerNeeded(int model)
             => Function.Call(Hash.SET_​MODEL_​AS_​NO_​LONGER_​NEEDED, model);
+
+        public static void RequestModel(int model)
+            => Function.Call(Hash.REQUEST_​MODEL, model);
+
+        public static bool HasModelLoaded(int model)
+            => Function.Call<bool>(Hash.HAS_​MODEL_​LOADED, model);
     }
 }

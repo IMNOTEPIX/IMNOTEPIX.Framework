@@ -10,6 +10,8 @@
     <RootNamespace>IMNOTEPIX.Framework</RootNamespace>
     <AssemblyName>IMNOTEPIX.Framework</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>bin\Debug\IMNOTEPIX.Framework.xml</DocumentationFile>
     <LangVersion>latest</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -53,7 +55,9 @@
     <Compile Include="Blip\Blip.cs" />
     <Compile Include="Blip\BlipPreset.cs" />
     <Compile Include="Blip\BlipPresets.cs" />
+    <Compile Include="Blip\GPSBlip.cs" />
     <Compile Include="Core\Debug.cs" />
+    <Compile Include="Extension\EntityExtensions.cs" />
     <Compile Include="Core\InstructionalKey.cs" />
     <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\Math.cs" />
@@ -71,6 +75,7 @@
     <Compile Include="World\Effects\Explosion.cs" />
     <Compile Include="World\Effects\Fire.cs" />
     <Compile Include="World\Effects\Rayfire.cs" />
+    <Compile Include="World\HintCamera.cs" />
     <Compile Include="World\Misc.cs" />
     <Compile Include="Interfaces\IMinigame.cs" />
     <Compile Include="Core\GameTimer.cs" />
@@ -87,7 +92,9 @@
     <Compile Include="World\Ped.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Core\Streaming.cs" />
+    <Compile Include="World\BombCountdownDisplay.cs" />
     <Compile Include="World\Task.cs" />
+    <Compile Include="World\Train.cs" />
     <Compile Include="World\Vehicle.cs" />
     <Compile Include="World\Weapon.cs" />
     <Compile Include="World\Weather.cs" />
@@ -111,11 +118,11 @@
     <Compile Include="Gameplay\Combat\CombatGroup.cs" />
     <Compile Include="Gameplay\Combat\CombatAgent.cs" />
     <Compile Include="Gameplay\Combat\CombatRegistry.cs" />
-    <Compile Include="World\Interior\Interior.cs" />
-    <Compile Include="World\Interior\MansionConfig.cs" />
-    <Compile Include="World\Interior\MansionInterior.cs" />
-    <Compile Include="World\Interior\Map.cs" />
-    <Compile Include="World\Interior\PrologueMap.cs" />
+    <Compile Include="World\Map\Interior.cs" />
+    <Compile Include="World\Map\MansionConfig.cs" />
+    <Compile Include="World\Map\MansionInterior.cs" />
+    <Compile Include="World\Map\Map.cs" />
+    <Compile Include="World\Map\NorthYanktonMap.cs" />
     <Compile Include="Gameplay\Minigames\CartGrab.cs" />
     <Compile Include="Gameplay\Minigames\CartGrabExtensions.cs" />
     <Compile Include="World\Clouds.cs" />
@@ -124,6 +131,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.dll" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.dll" /y
-copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.pdb" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.pdb" /y</PostBuildEvent>
+copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.pdb" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.pdb" /y
+copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.xml" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.xml" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

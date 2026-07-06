@@ -7,6 +7,26 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Misc
     {
+        public static float GetRandomFloatInRange(float startRange, float endRange)
+            => Function.Call<float>(Hash.GET_​RANDOM_​FLOAT_​IN_​RANGE, startRange, endRange);
+
+        public static void ShootSingleBulletBetweenCoords(float x1, float y1, float z1, float x2, float y2, float z2, int damage, bool p7, int weaponHash, GTA.Ped ownerPed, bool isAudible, bool isInvisible, float speed)
+            => Function.Call(Hash.SHOOT_​SINGLE_​BULLET_​BETWEEN_​COORDS, x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed);
+
+        public static void ShootSingleBulletBetweenCoords(Vector3 xyz1, Vector3 xyz2, int damage, bool p7, int weaponHash, GTA.Ped ownerPed, bool isAudible, bool isInvisible, float speed)
+            => Function.Call(Hash.SHOOT_​SINGLE_​BULLET_​BETWEEN_​COORDS, xyz1.X, xyz1.Y, xyz1.Z, xyz2.X, xyz2.Y, xyz2.Z, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed);
+
+        public static unsafe bool GetGroundZFor3DCoord(float x, float y, float z, float* groundZ, bool ignoreWater, bool p5)
+            => Function.Call<bool>(Hash.GET_​GROUND_​Z_​FOR_​3D_​COORD, x, y, z, groundZ, ignoreWater, p5);
+
+        public static unsafe bool GetGroundZFor3DCoord(Vector3 xyz, float* groundZ, bool ignoreWater, bool p5)
+            => Function.Call<bool>(Hash.GET_​GROUND_​Z_​FOR_​3D_​COORD, xyz.X, xyz.Y, xyz.Z, groundZ, ignoreWater, p5);
+
+        public static bool IsBulletInArea(float x, float y, float z, float radius, bool ownedByPlayer)
+            => Function.Call<bool>(Hash.IS_​BULLET_​IN_​AREA, x, y, z, radius, ownedByPlayer);
+
+        public static bool IsBulletInArea(Vector3 xyz, float radius, bool ownedByPlayer)
+            => Function.Call<bool>(Hash.IS_​BULLET_​IN_​AREA, xyz.X, xyz.Y, xyz.Z, radius, ownedByPlayer);
 
         public static float GetDistanceBetweenCoords(float x1, float y1, float z1, float x2, float y2, float z2, bool useZ)
             => Function.Call<float>(Hash.GET_DISTANCE_BETWEEN_COORDS, x1, y1, z1, x2, y2, z2, useZ);
@@ -51,9 +71,9 @@ namespace IMNOTEPIX.Framework.fWorld
                 switch (entity.EntityType)
                 {
                     case EntityType.Vehicle 
-                    when skipVehicles: continue;
+                    when skipVehicles || entity == fPlayer.Player.Character.CurrentVehicle: continue;
                     case EntityType.Ped 
-                    when skipPeds: continue;
+                    when skipPeds || entity == fPlayer.Player.Character: continue;
                     case EntityType.Prop 
                     when skipProps: continue;
                 }
@@ -78,8 +98,8 @@ namespace IMNOTEPIX.Framework.fWorld
            => Function.Call(Hash.DISABLE_POLICE_RESTART, policeID, disable);
 
         [Obsolete("Use joaat instead.")]
-        public static Hash GetHashKey(string str)
-            => Function.Call<Hash>(Hash.GET_HASH_KEY, str);
+        public static int GetHashKey(string str)
+            => Function.Call<int>(Hash.GET_HASH_KEY, str);
 
         public static uint joaatUnregistered(string str)
             => Function.Call<uint>(Hash.GET_HASH_KEY, str);

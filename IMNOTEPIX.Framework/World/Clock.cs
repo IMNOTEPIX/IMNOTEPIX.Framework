@@ -32,26 +32,46 @@ namespace IMNOTEPIX.Framework.fWorld
             => Function.Call(Hash.SET_CLOCK_TIME, hour, minute, second);
 
         /// <summary>
-        /// Advances the clock forward in real-time by repeatedly adding
-        /// <paramref name="stepMinutes"/> (or <paramref name="stepSeconds"/>) per frame
-        /// until both the target hour and minute are reached, then snaps to the exact target.
+        /// Eases the in-game clock forward toward the given time over real-world time,
+        /// then snaps to the exact target. Always moves forward, wrapping past midnight
+        /// if the target is "behind" the current time.
         /// </summary>
-        /// <param name="easeByMinutes">
-        /// If <c>true</c>, steps in minutes; otherwise steps in seconds.
+        /// <param name="stepDelayMs">
+        /// Real-world milliseconds to wait between each step. Raise this (or lower
+        /// stepMinutes/stepSeconds) to slow the visible easing down.
         /// </param>
-        public static void EaseClockTimeTo(int hour, int minute, int second = 0, bool easeByMinutes = true, int stepMinutes = 1, int stepSeconds = 1)
+        public static void EaseClockTimeTo(int hour, int minute, int second = 0, bool easeByMinutes = true, int stepMinutes = 1, int stepSeconds = 1, int stepDelayMs = 15)
         {
-            while (Hours != hour || Minutes != minute)
-            {
-                if (easeByMinutes)
-                    AddToClockTime(0, stepMinutes, 0);
-                else
-                    AddToClockTime(0, 0, stepSeconds);
+            int currentTotalMinutes = Hours * 60 + Minutes;
+            int targetTotalMinutes = hour * 60 + minute;
 
-                GTA.Script.Yield();
+            int minutesToAdd = targetTotalMinutes - currentTotalMinutes;
+            if (minutesToAdd < 0)
+                minutesToAdd += 24 * 60;
+
+            if (easeByMinutes)
+            {
+                int step = Math.Max(1, stepMinutes);
+                int steps = minutesToAdd / step;
+
+                for (int i = 0; i < steps; i++)
+                {
+                    AddToClockTime(0, step, 0);
+                    GTA.Script.Wait(stepDelayMs);
+                }
+            }
+            else
+            {
+                int step = Math.Max(1, stepSeconds);
+                int steps = (minutesToAdd * 60) / step;
+
+                for (int i = 0; i < steps; i++)
+                {
+                    AddToClockTime(0, 0, step);
+                    GTA.Script.Wait(stepDelayMs);
+                }
             }
 
-            // Snap to the exact target once the hour and minute align.
             SetClockTime(hour, minute, second);
         }
 

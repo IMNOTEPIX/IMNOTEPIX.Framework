@@ -133,8 +133,8 @@ namespace IMNOTEPIX.Framework.fBlip
         public static GTA.Blip CreateBlipForCoordWithParams(Vector3 pos, BlipSprite sprite, BlipColor color, float scale, string name, bool isShortRange = false, int alpha = 255)
         {
             GTA.Blip blip = AddBlipForCoord(pos);
-            if (blip == null)
-                return null;
+            while (blip == null)
+                GTA.Script.Wait(0);
 
             blip.Alpha = alpha;
             blip.Sprite = sprite;
@@ -149,8 +149,8 @@ namespace IMNOTEPIX.Framework.fBlip
         public static GTA.Blip CreateBlipForCoordWithParams(Vector3 pos, BlipSprite sprite, BlipColor color, float scaleX, float scaleY, string name, bool isShortRange = false, int alpha = 255)
         {
             GTA.Blip blip = AddBlipForCoord(pos);
-            if (blip == null)
-                return null;
+            while (blip == null)
+                GTA.Script.Wait(0);
 
             blip.Alpha = alpha;
             blip.Sprite = sprite;
@@ -165,8 +165,8 @@ namespace IMNOTEPIX.Framework.fBlip
         public static GTA.Blip CreateBlipForRadiusWithParams(Vector3 pos, float radius, BlipColor color)
         {
             GTA.Blip blip = AddBlipForRadius(pos, radius);
-            if (blip == null)
-                return null;
+            while (blip == null)
+                GTA.Script.Wait(0);
 
             blip.Color = color;
             return blip;
@@ -181,10 +181,28 @@ namespace IMNOTEPIX.Framework.fBlip
             GTA.Blip blip = GTA.World.CreateBlip(pos);
 
             if (blip != null && !blip.Exists())
-                GTA.Script.Yield();
+                GTA.Script.Wait(0);
 
             blip.Sprite = (BlipSprite)spriteID;
             blip.Color = color;
+            SetBlipGPS(blip, 156, drawFromPlayer: true, displayOnFoot: false);
+            return blip;
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="CreateGPSBlip(Vector3, int, BlipColor)"/>
+        /// </summary>
+        public static GTA.Blip CreateGPSBlip(Vector3 pos, BlipPreset preset)
+        {
+            GTA.Blip blip = GTA.World.CreateBlip(pos);
+
+            if (blip != null && !blip.Exists())
+                GTA.Script.Wait(0);
+
+            blip.Sprite = preset.Sprite;
+            blip.Color = preset.Color;
+            blip.Name = preset.Name;
+            blip.Scale = preset.Scale;
             SetBlipGPS(blip, 156, drawFromPlayer: true, displayOnFoot: false);
             return blip;
         }
@@ -209,9 +227,11 @@ namespace IMNOTEPIX.Framework.fBlip
                 return;
 
             Function.Call(Hash.CLEAR_GPS_MULTI_ROUTE);
+            blip.ShowRoute = true;
+            /*
             Function.Call(Hash.START_GPS_MULTI_ROUTE, color, drawFromPlayer, displayOnFoot);
             Function.Call(Hash.SET_GPS_MULTI_ROUTE_RENDER, true);
-            Function.Call(Hash.ADD_POINT_TO_GPS_MULTI_ROUTE, blip.Position.X, blip.Position.Y, blip.Position.Z);
+            Function.Call(Hash.ADD_POINT_TO_GPS_MULTI_ROUTE, blip.Position.X, blip.Position.Y, blip.Position.Z);*/
         }
 
         /// <summary>Shows or hides the GPS multi-route line without clearing it.</summary>
@@ -244,5 +264,17 @@ namespace IMNOTEPIX.Framework.fBlip
 
         public static void SetBlipScale(GTA.Blip blip, float scale)
             => Function.Call(Hash.SET_BLIP_SCALE, blip, scale);
+
+        public static void SetBlipPriority(GTA.Blip blip, int priority)
+            => Function.Call(Hash.SET_​BLIP_​PRIORITY, blip, priority);
+
+        public static GTA.Blip AddBlipForEntity(GTA.Entity entity)
+            => Function.Call<GTA.Blip>(Hash.ADD_​BLIP_​FOR_​ENTITY, entity);
+
+        public static void SetBlipAsFriendly(GTA.Blip blip, bool toggle)
+            => Function.Call(Hash.SET_​BLIP_​AS_​FRIENDLY, blip, toggle);
+
+        public static void SetBlipColour(GTA.Blip blip, int color)
+            => Function.Call(Hash.SET_​BLIP_​COLOUR, blip, color);
     }
 }

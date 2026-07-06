@@ -75,6 +75,13 @@ namespace IMNOTEPIX.Framework.fAudio
             return false;
         }
 
+        public static bool CancelMusicEventIntensity(MusicEventIntensity intensity)
+        {
+            if (MusicEventNames.TryGetValue(intensity, out string eventName))
+                return CancelMusicEvent(eventName);
+            return false;
+        }
+
         /// <returns><c>true</c> once alarm is ready.</returns>
         public static bool PrepareAlarm(string alarmName)
             => Function.Call<bool>(Hash.PREPARE_ALARM, alarmName);
@@ -140,6 +147,39 @@ namespace IMNOTEPIX.Framework.fAudio
 
         public static void StopPedSpeaking(GTA.Ped ped, bool shaking)
             => Function.Call(Hash.STOP_PED_SPEAKING, ped, shaking);
+
+        public static void SetFrontendRadioActive(bool active)
+            => Function.Call(Hash.SET_​FRONTEND_​RADIO_​ACTIVE, active);
+
+        public static void SetSirenWithNoDriver(GTA.Vehicle vehicle, bool toggle)
+            => Function.Call(Hash.SET_​SIREN_​WITH_​NO_​DRIVER, vehicle, toggle);
+
+        public static void CreateNewScriptedConversation()
+            => Function.Call(Hash.CREATE_NEW_SCRIPTED_CONVERSATION);
+
+        public static void AddPedToConversation(int speakerConversationIndex, GTA.Ped ped, string voiceName)
+            => Function.Call(Hash.ADD_PED_TO_CONVERSATION, speakerConversationIndex, ped, voiceName);
+
+        public static void AddLineToConversation(int speakerConversationIndex, string context, string subtitle, int listenerNumber, int volumeType, bool isRandom, bool interruptible, bool ducksRadio, bool ducksScore, int audibility, bool headset, bool dontInterruptForSpecialAbility, bool isPadSpeakerRoute)
+            => Function.Call(Hash.ADD_LINE_TO_CONVERSATION, speakerConversationIndex, context, subtitle, listenerNumber, volumeType, isRandom, interruptible, ducksRadio, ducksScore, audibility, headset, dontInterruptForSpecialAbility, isPadSpeakerRoute);
+
+        public static void AddLineToConversation(int speakerConversationIndex, string context, string subtitle, int listenerNumber, int volumeType, bool isRandom, bool interruptible, bool ducksRadio, bool ducksScore, eAudibility audibility, bool headset, bool dontInterruptForSpecialAbility, bool isPadSpeakerRoute)
+            => Function.Call(Hash.ADD_LINE_TO_CONVERSATION, speakerConversationIndex, context, subtitle, listenerNumber, volumeType, isRandom, interruptible, ducksRadio, ducksScore, (int)audibility, headset, dontInterruptForSpecialAbility, isPadSpeakerRoute);
+
+        public static void StartScriptConversation(bool displaySubtitles, bool addToBriefScreen, bool cloneConversation, bool interruptible)
+            => Function.Call(Hash.START_SCRIPT_CONVERSATION, displaySubtitles, addToBriefScreen, cloneConversation, interruptible);
+
+        public static void PlayPedAmbientSpeechWithVoiceNative(GTA.Ped ped, string speechName, string voiceName, string speechParam, bool p4 = false)
+            => Function.Call(Hash.PLAY_PED_AMBIENT_SPEECH_WITH_VOICE_NATIVE, ped, speechName, voiceName, speechParam, p4);
+
+
+        public enum eAudibility
+        {
+            AUD_AUDIBILITY_NORMAL = 0,
+            AUD_AUDIBILITY_CLEAR = 1,
+            AUD_AUDIBILITY_CRITICAL = 2,
+            AUD_AUDIBILITY_LEAD_IN = 3
+        }
 
         public enum MusicEventIntensity
         {

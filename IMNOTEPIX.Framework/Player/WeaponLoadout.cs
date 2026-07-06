@@ -6,6 +6,7 @@
     using System.Xml.Linq;
     using GTA;
     using GTA.Native;
+    using IMNOTEPIX.Framework.fCore;
 
     /// <summary>
     /// A weapon loadout that lives as a variable in your code.
@@ -123,7 +124,9 @@
 
             if (entries.Count <= 1)
             {
+#if DEBUG
                 GTA.UI.Notification.PostTicker("~y~WeaponLoadout: player is carrying no weapons.", false);
+#endif
                 return null;
             }
 
