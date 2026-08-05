@@ -2,6 +2,7 @@
 using GTA.Math;
 using GTA.Native;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace IMNOTEPIX.Framework.fBlip
 {
@@ -124,6 +125,11 @@ namespace IMNOTEPIX.Framework.fBlip
                 longRangeBlips[i].IsShortRange = isShortRange;
         }
 
+        public static void CreateBlipPreset(List<GTA.Blip> blips, Vector3 pos, BlipPreset preset)
+        {
+            GTA.Blip blip = CreateBlipForCoordWithParams(pos, preset.Sprite, preset.Color, preset.Scale, preset.Name, preset.IsShortRange);
+            blips.Add(blip);
+        }
 
         /// <summary>Creates a blip at <paramref name="pos"/> using a <see cref="BlipPreset"/>.</summary>
         public static GTA.Blip CreateBlipPreset(Vector3 pos, BlipPreset preset)
@@ -276,5 +282,21 @@ namespace IMNOTEPIX.Framework.fBlip
 
         public static void SetBlipColour(GTA.Blip blip, int color)
             => Function.Call(Hash.SET_​BLIP_​COLOUR, blip, color);
+
+        public static void SetBlipExtendedHeightThreshold(GTA.Blip blip, bool toggle)
+            => Function.Call(Hash.SET_​BLIP_​EXTENDED_​HEIGHT_​THRESHOLD, blip, toggle);
+
+        public static void SetBlipNameFromTextFile(GTA.Blip blip, string gxtEntry)
+            => Function.Call(Hash.SET_​BLIP_​NAME_​FROM_​TEXT_​FILE, blip, gxtEntry);
+
+        public static void ApplyBlipPreset(GTA.Blip blip, BlipPreset preset)
+        {
+            blip.Sprite = preset.Sprite;
+            blip.Color = preset.Color;
+            blip.Scale = preset.Scale;
+            blip.Name = preset.Name;
+            blip.DisplayType = preset.DisplayType;
+            blip.IsShortRange = preset.IsShortRange;
+        }
     }
 }

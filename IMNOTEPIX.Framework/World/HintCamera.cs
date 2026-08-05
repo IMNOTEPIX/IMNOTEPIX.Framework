@@ -49,6 +49,9 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <summary>Cooldown in milliseconds before the hint can fire again.</summary>
         public int HintCooldown { get; set; } = 3000;
 
+        /// <summary>How long in milliseconds the hint camera takes to zoom out after firing.</summary>
+        public int HintOutDuration { get; set; } = 3000;
+
         /// <summary>
         /// The gameplay hint type passed to SET_GAMEPLAY_ENTITY_HINT.
         /// Use GameplayHintType enum values — e.g. GameplayHintType.Default,
@@ -66,7 +69,8 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <param name="HintDuration"><inheritdoc cref="fWorld.HintCamera.HintDuration"/></param>
         /// <param name="HintCooldown"><inheritdoc cref="fWorld.HintCamera.HintCooldown"/></param>
         /// <param name="HintHash"><inheritdoc cref="fWorld.HintCamera.HintHash"/></param>
-        public HintCamera(GTA.Entity Target, Vector3 Offset = default, string HelpMessageGXT = "CMN_HINT", int HintDuration = 3000, int HintCooldown = 3000, CameraHintHelperNameHash HintHash = 0)
+        /// <param name="HintOutDuration"><inheritdoc cref="fWorld.HintCamera.HintOutDuration"/></param>
+        public HintCamera(GTA.Entity Target, Vector3 Offset = default, string HelpMessageGXT = "CMN_HINT", int HintDuration = 3000, int HintCooldown = 3000, int HintOutDuration = 3000, CameraHintHelperNameHash HintHash = 0)
         {
             TargetEntity = Target;
             TargetOffset = Offset;
@@ -74,6 +78,7 @@ namespace IMNOTEPIX.Framework.fWorld
             this.HintDuration = HintDuration;
             this.HintCooldown = HintCooldown;
             this.HintHash = HintHash;
+            this.HintOutDuration = HintOutDuration;
         }
 
         /// <param name="Target"><inheritdoc cref="fWorld.HintCamera.TargetEntity"/></param>
@@ -82,7 +87,8 @@ namespace IMNOTEPIX.Framework.fWorld
         /// <param name="HintDuration"><inheritdoc cref="fWorld.HintCamera.HintDuration"/></param>
         /// <param name="HintCooldown"><inheritdoc cref="fWorld.HintCamera.HintCooldown"/></param>
         /// <param name="HintHash"><inheritdoc cref="fWorld.HintCamera.HintHash"/></param>
-        public HintCamera(GTA.Entity Target, Vector3 Offset = default, int HintDuration = 3000, int HintCooldown = 3000, CameraHintHelperNameHash HintHash = 0, params string[] HelpMessage)
+        /// <param name="HintOutDuration"><inheritdoc cref="fWorld.HintCamera.HintOutDuration"/></param>
+        public HintCamera(GTA.Entity Target, Vector3 Offset = default, int HintDuration = 3000, int HintCooldown = 3000, int HintOutDuration = 3000, CameraHintHelperNameHash HintHash = 0, params string[] HelpMessage)
         {
             TargetEntity = Target;
             TargetOffset = Offset;
@@ -91,6 +97,7 @@ namespace IMNOTEPIX.Framework.fWorld
             this.HintDuration = HintDuration;
             this.HintCooldown = HintCooldown;
             this.HintHash = HintHash;
+            this.HintOutDuration = HintOutDuration;
         }
 
         // ---------------------------------------------------------------
@@ -160,6 +167,7 @@ namespace IMNOTEPIX.Framework.fWorld
             HelpMessageGxt = null;
             HintDuration = default;
             HintCooldown = default;
+            HintOutDuration = default;
             HintHash = default;
         }
 
@@ -292,17 +300,19 @@ namespace IMNOTEPIX.Framework.fWorld
 
             int duration = HintDuration;
             int cooldown = HintCooldown;
+            int outDuration = HintOutDuration;
 
             // R*'s script enforces a minimum of 1500ms for the high zoom hint
             if ((int)HintHash == (int)StringHash.AtStringHashUtf8("VEHICLE_HIGH_ZOOM_HINT_HELPER"))
             {
                 duration = Math.Max(duration, 1500);
                 cooldown = Math.Max(cooldown, 1500);
+                outDuration = Math.Max(outDuration, 1500);
             }
 
             Function.Call(Hash.SET_CINEMATIC_BUTTON_ACTIVE, false);
 
-            GameplayCamera.SetEntityHint(TargetEntity, TargetOffset, true, duration, cooldown, 90000, HintHash);
+            GameplayCamera.SetEntityHint(TargetEntity, TargetOffset, true, duration, cooldown, outDuration, HintHash);
 
             Game.Player.Character.Task.LookAt(TargetEntity, -1, (LookAtFlags)2048, (LookAtPriority)3);
 

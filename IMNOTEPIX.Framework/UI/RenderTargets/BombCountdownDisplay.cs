@@ -1,7 +1,7 @@
 ﻿using GTA;
 using GTA.Native;
 
-namespace IMNOTEPIX.Framework.fWorld
+namespace IMNOTEPIX.Framework.fUI.RenderTargets
 {
     /// <summary>
     /// Bomb-countdown-only slice of the decompiled rendertarget/scaleform

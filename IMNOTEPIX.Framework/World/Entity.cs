@@ -11,6 +11,30 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Entity
     {
+        public static bool HasEntityClearLOSToEntityAdjustForCover(GTA.Entity entity1, GTA.Entity entity2, int traceType)
+            => Function.Call<bool>(Hash.HAS_​ENTITY_​CLEAR_​LOS_​TO_​ENTITY_​ADJUST_​FOR_​COVER, entity1, entity2, traceType);
+
+        public static bool HasEntityClearLOSToEntity(GTA.Entity entity1, GTA.Entity entity2, int traceType)
+            => Function.Call<bool>(Hash.HAS_ENTITY_CLEAR_LOS_TO_ENTITY, entity1, entity2, traceType);
+
+        public static void CreateModelSwap(float x, float y, float z, float radius, Model originalModel, Model newModel, bool bSurviveMapReload)
+            => Function.Call(Hash.CREATE_​MODEL_​SWAP, x, y, z, radius, (int)originalModel, (int)newModel, bSurviveMapReload);
+
+        public static void CreateModelSwap(Vector3 xyz, float radius, Model originalModel, Model newModel, bool bSurviveMapReload)
+            => Function.Call(Hash.CREATE_​MODEL_​SWAP, xyz.X, xyz.Y, xyz.Z, radius, (int)originalModel, (int)newModel, bSurviveMapReload);
+
+        public static void EnableEntityBulletCollision(GTA.Entity entity)
+            => Function.Call(Hash.ENABLE_​ENTITY_​BULLET_​COLLISION, entity);
+
+        public static void SetEntityNoCollisionEntity(GTA.Entity entity1, GTA.Entity entity2, bool thisFrameOnly)
+            => Function.Call(Hash.SET_​ENTITY_​NO_​COLLISION_​ENTITY, entity1, entity2, thisFrameOnly);
+
+        public static void RemoveModelHide(float x, float y, float z, float radius, Model model, bool lazy)
+            => Function.Call(Hash.REMOVE_MODEL_HIDE, x, y, z, radius, (int)model, lazy);
+
+        public static void RemoveModelHide(Vector3 xyz, float radius, Model model, bool lazy)
+            => Function.Call(Hash.REMOVE_MODEL_HIDE, xyz.X, xyz.Y, xyz.Z, radius, (int)model, lazy);
+
         public static GTA.Ped GetPedIndexFromEntityIndex(GTA.Entity entity)
             => Function.Call<GTA.Ped>(Hash.GET_​PED_​INDEX_​FROM_​ENTITY_​INDEX, entity);
 
@@ -51,11 +75,11 @@ namespace IMNOTEPIX.Framework.fWorld
             return entity.IsOnScreen;
         }
 
-        public static void CreateModelHide(Vector3 xyz, float radius, int modelHash, bool p5)
-            => Function.Call(Hash.CREATE_​MODEL_​HIDE, xyz.X, xyz.Y, xyz.Z, radius, modelHash, p5);
+        public static void CreateModelHide(Vector3 xyz, float radius, Model model, bool p5)
+            => Function.Call(Hash.CREATE_​MODEL_​HIDE, xyz.X, xyz.Y, xyz.Z, radius, (int)model, p5);
 
-        public static void CreateModelHide(float x, float y, float z, float radius, int modelHash, bool p5)
-            => Function.Call(Hash.CREATE_​MODEL_​HIDE, x, y, z, radius, modelHash, p5);
+        public static void CreateModelHide(float x, float y, float z, float radius, Model model, bool p5)
+            => Function.Call(Hash.CREATE_​MODEL_​HIDE, x, y, z, radius, (int)model, p5);
 
         public static Vector3 GetEntityCoords(GTA.Entity entity, bool alive)
             => Function.Call<Vector3>(Hash.GET_ENTITY_COORDS, entity, alive);

@@ -1,6 +1,9 @@
 ﻿using GTA;
+using GTA.Math;
 using GTA.Native;
+using IMNOTEPIX.Framework.fExtension;
 using System;
+using System.Windows.Forms;
 
 namespace IMNOTEPIX.Framework.fGameplay.Combat
 {
@@ -38,6 +41,9 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             if (Handle != null && !Handle.Exists())
                 GTA.Script.Yield();
 
+            if (Exists)
+                Handle.FadeIn();
+
             if (!Exists)
                 throw new InvalidOperationException($"Failed to create combat ped at {Config.Position}.");
         }
@@ -48,6 +54,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             if (!Exists || _activated || _disposed)
                 return;
 
+            CombatRegistry._alivePeds.Add(this);
             SetupBlip();
             SetupFlags();
             SetupRelationships();
@@ -67,6 +74,7 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
 
             if (Handle.IsDead)
             {
+                CombatRegistry._alivePeds.Remove(this);
                 Handle.AttachedBlip?.Delete();
                 Handle.MarkAsNoLongerNeeded();
             }
@@ -106,14 +114,25 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             blip.Scale = Config.BlipScale;
             blip.IsShortRange = true;
             blip.DisplayType = BlipDisplayType.MiniMapOnly;
+            blip.FadeIn();
         }
 
         private void SetupFlags()
         {
-            fWorld.Ped.SetPedConfigFlag(Handle, 281, !Config.CanWrithe);
-            fWorld.Ped.SetPedConfigFlag(Handle, 188, !Config.CanHurt);
-            fWorld.Ped.SetPedConfigFlag(Handle, fWorld.Ped.PedConfigFlags.PCF_DontBlipCop, !Config.IsCop);
-            fWorld.Ped.SetPedAsCop(Handle, Config.IsCop);
+            foreach (var flag in Config.EnableFlags)
+                fWorld.Ped.SetPedConfigFlag(Handle, flag, true);
+            foreach (var flag in Config.DisableFlags)
+                fWorld.Ped.SetPedConfigFlag(Handle, flag, false);
+            SetCop();
+        }
+
+        private void SetCop()
+        {
+            if (Config.IsCop)
+            {
+                fWorld.Ped.SetPedAsCop(Handle, true);
+                fWorld.Ped.SetPedConfigFlag(Handle, fWorld.Ped.PedConfigFlags.PCF_DontBlipCop, false);
+            }
         }
 
         private void SetupRelationships()
@@ -155,8 +174,23 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
             var player = Game.Player.Character;
             bool sameInterior = fWorld.Map.Interior.GetInteriorFromEntity(Handle) == fWorld.Map.Interior.GetInteriorFromEntity(player);
             bool sameRoom = fWorld.Map.Interior.GetRoomKeyFromEntity(Handle) == fWorld.Map.Interior.GetRoomKeyFromEntity(player);
+            RaycastResult raycast = World.Raycast(GameplayCamera.Position, Handle.Position, IntersectFlags.Everything);
 
-            blip.Alpha = (sameInterior && sameRoom) ? 255 : 0;
+            if ((sameInterior && sameRoom) && fPlayer.Player.GetDistanceTo(Handle.Position) < 5f)
+            {
+                if (blip.Alpha == 0)
+                    blip.FadeIn(0.3f);
+            }
+            else if (Handle.HasClearLineOfSightToAdjustForCover(player) || raycast.HitEntity == Handle)
+            {
+                if (blip.Alpha == 0)
+                    blip.FadeIn(0.3f);
+            }
+            else
+            {
+                if (blip.Alpha == 255)
+                    blip.FadeOut(0.3f);
+            }
         }
     }
 }

@@ -25,9 +25,10 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
         public fWorld.Ped.CombatAttributes[] DisableAttributes { get; set; } = DefaultDisableAttributes;
 
         public List<Tuple<CombatFloatAttributes, float>> CombatFloat { get; set; } = [];
+        
+        public fWorld.Ped.PedConfigFlags[] EnableFlags { get; set; } = [];
+        public fWorld.Ped.PedConfigFlags[] DisableFlags { get; set; } = [];
 
-        public bool CanHurt { get; set; } = true;
-        public bool CanWrithe { get; set; } = true;
         public bool IsCop { get; set; } = false;
 
         public string BlipName { get; set; } = "Enemy";
@@ -95,10 +96,14 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
                 new Tuple<CombatFloatAttributes, float>(CombatFloatAttributes.FightProficiency, 0.5f),
                 new Tuple<CombatFloatAttributes, float>(CombatFloatAttributes.StrafeWhenMovingChance, 1.0f),
             },
+            EnableFlags = [
+                fWorld.Ped.PedConfigFlags.PCF_DisableHurt
+                ],
+            DisableFlags = [
+                fWorld.Ped.PedConfigFlags.PCF_DisableGoToWritheWhenInjured,
+                ],
             EnableAttributes = NTH_DefaultVaultGuardEnableAttributes,
             DisableAttributes = DefaultDisableAttributes,
-            CanHurt = false,
-            CanWrithe = true,
             BlipName = "Guard"
         };
     }

@@ -19,10 +19,10 @@ namespace IMNOTEPIX.Framework.fCore
             CopyToClipboard(text);
         }
 
-        public static void CopyToClipboard(string text)
+        public static void CopyToClipboard(object text)
         {
             GTA.UI.Screen.ShowSubtitle("~p~Copied~s~: to clipboard!");
-            var thread = new Thread(() => Clipboard.SetText(text));
+            var thread = new Thread(() => Clipboard.SetText(text.ToString()));
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }
@@ -52,5 +52,7 @@ namespace IMNOTEPIX.Framework.fCore
 
             CopyToClipboard(sb.ToString());
         }
+
+        public static void DoNothing() { }
     }
 }

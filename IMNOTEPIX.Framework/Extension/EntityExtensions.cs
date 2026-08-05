@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Native;
+using System;
 using System.Collections.Generic;
 
 namespace IMNOTEPIX.Framework.fExtension
@@ -9,79 +10,66 @@ namespace IMNOTEPIX.Framework.fExtension
         private struct FadeEntry
         {
             public Entity Entity;
-            public float Alpha;
-            public float Duration;
+            public bool FadeIn;             // true = fading toward alpha 255, false = toward alpha 0
             public bool DeleteOnComplete;
 
-            // Flicker state
-            public bool Flickering;
-            public float ElapsedTime;
-            public float FlickerTime;   // timer within current flicker pulse
-            public int FlickerCount;    // how many pulses have fired
+            public float FlickerDuration;   // seconds of free jitter before committing to the target
+            public float PhaseOffset;       // desyncs simultaneous fades from each other
+
+            public float Timer;             // f_0 equivalent - accumulated seconds
+            public bool Finished;           // f_1 equivalent
         }
 
         private static readonly List<FadeEntry> _pending = new List<FadeEntry>();
+        private static readonly Random _rng = new Random();
 
         public const float DefaultFadeDuration = 0.75f;
 
-        // ── Extension methods ──────────────────────────────────────────────
-
         /// <summary>
-        /// Begins fading this entity in using Rockstar's flickering pulse pattern.
+        /// Begins fading this entity in using Rockstar's flickering pulse pattern
+        /// (reverse engineered from func_7326/func_7327/func_7329).
         /// </summary>
         public static void FadeIn(this Entity entity, float duration = DefaultFadeDuration)
         {
             if (entity == null || !entity.Exists()) return;
 
-            for (int i = _pending.Count - 1; i >= 0; i--)
-            {
-                if (_pending[i].Entity == entity)
-                    _pending.RemoveAt(i);
-            }
+            RemovePending(entity);
 
             Function.Call(Hash.SET_ENTITY_ALPHA, entity, 0, false);
 
             _pending.Add(new FadeEntry
             {
                 Entity = entity,
-                Alpha = 0f,
-                Duration = duration,
-                ElapsedTime = 0f,
-                Flickering = true,
-                FlickerTime = 0f,
-                FlickerCount = 0
+                FadeIn = true,
+                DeleteOnComplete = false,
+                FlickerDuration = duration,
+                PhaseOffset = NextPhaseOffset(),
+                Timer = 0f,
+                Finished = false
             });
         }
 
         /// <summary>
-        /// Begins fading this entity out to invisible using a flickering pulse, then optionally deletes it.
+        /// Begins fading this entity out to invisible using Rockstar's flickering pulse pattern,
+        /// then optionally deletes it once it reaches alpha 0.
         /// </summary>
         public static void FadeOut(this Entity entity, float duration = DefaultFadeDuration, bool deleteOnComplete = false)
         {
             if (entity == null || !entity.Exists()) return;
 
-            for (int i = _pending.Count - 1; i >= 0; i--)
-            {
-                if (_pending[i].Entity == entity)
-                    _pending.RemoveAt(i);
-            }
-
-            var currentAlpha = Function.Call<int>(Hash.GET_ENTITY_ALPHA, entity);
+            RemovePending(entity);
 
             _pending.Add(new FadeEntry
             {
                 Entity = entity,
-                Alpha = currentAlpha,
-                Duration = -duration,
+                FadeIn = false,
                 DeleteOnComplete = deleteOnComplete,
-                Flickering = true,      // flicker before the smooth ramp down
-                ElapsedTime = 0f,
-                FlickerTime = 0f,
-                FlickerCount = 0
+                FlickerDuration = duration,
+                PhaseOffset = NextPhaseOffset(),
+                Timer = 0f,
+                Finished = false
             });
         }
-
-        // ── Tick ──────────────────────────────────────────────────────────
 
         /// <summary>
         /// Call this every tick from your script's OnTick.
@@ -89,13 +77,6 @@ namespace IMNOTEPIX.Framework.fExtension
         public static void Update()
         {
             if (_pending.Count == 0) return;
-
-            float dt = Game.LastFrameTime;
-
-            const int FlickerPulses = 4;
-            const float FlickerPulseDur = 0.08f;
-            const int FlickerLowAlpha = 20;
-            const int FlickerHighAlpha = 90;
 
             for (int i = _pending.Count - 1; i >= 0; i--)
             {
@@ -107,96 +88,75 @@ namespace IMNOTEPIX.Framework.fExtension
                     continue;
                 }
 
-                bool fadingIn = entry.Duration > 0f;
-                float step = (255f / System.Math.Abs(entry.Duration)) * dt;
+                int alpha = ComputeAlpha(ref entry);
+                Function.Call(Hash.SET_ENTITY_ALPHA, entry.Entity, alpha, false);
 
-                // ── Fade in (with flicker phase) ──────────────────────────────
-                if (fadingIn)
+                if (entry.Finished)
                 {
-                    if (entry.Flickering)
-                    {
-                        entry.ElapsedTime += dt;
-                        entry.FlickerTime += dt;
-
-                        if (entry.FlickerTime >= FlickerPulseDur)
-                        {
-                            entry.FlickerTime -= FlickerPulseDur;
-                            entry.FlickerCount++;
-                        }
-
-                        if (entry.FlickerCount < FlickerPulses * 2)
-                        {
-                            int targetAlpha = (entry.FlickerCount % 2 == 0)
-                                ? FlickerLowAlpha
-                                : FlickerHighAlpha;
-
-                            Function.Call(Hash.SET_ENTITY_ALPHA, entry.Entity, targetAlpha, false);
-                            _pending[i] = entry;
-                            continue;
-                        }
-
-                        // Flicker done — hand off to smooth ramp
-                        entry.Flickering = false;
-                        entry.Alpha = FlickerHighAlpha;
-                    }
-
-                    entry.Alpha += step;
-
-                    if (entry.Alpha >= 255f)
+                    if (entry.FadeIn)
                     {
                         Function.Call(Hash.RESET_ENTITY_ALPHA, entry.Entity);
-                        _pending.RemoveAt(i);
-                        continue;
                     }
-                }
-                // ── Fade out (flicker then smooth ramp down) ──────────────────────
-                else
-                {
-                    if (entry.Flickering)
+                    else if (entry.DeleteOnComplete)
                     {
-                        entry.ElapsedTime += dt;
-                        entry.FlickerTime += dt;
-
-                        if (entry.FlickerTime >= FlickerPulseDur)
-                        {
-                            entry.FlickerTime -= FlickerPulseDur;
-                            entry.FlickerCount++;
-                        }
-
-                        if (entry.FlickerCount < FlickerPulses * 2)
-                        {
-                            // Fade-out flicker is reversed: starts high, pulses down
-                            int targetAlpha = (entry.FlickerCount % 2 == 0)
-                                ? FlickerHighAlpha
-                                : FlickerLowAlpha;
-
-                            Function.Call(Hash.SET_ENTITY_ALPHA, entry.Entity, targetAlpha, false);
-                            _pending[i] = entry;
-                            continue;
-                        }
-
-                        // Flicker done — hand off to smooth ramp down
-                        entry.Flickering = false;
-                        entry.Alpha = FlickerHighAlpha;
+                        entry.Entity.Delete();
                     }
 
-                    entry.Alpha -= step;
-
-                    if (entry.Alpha <= 0f)
-                    {
-                        Function.Call(Hash.SET_ENTITY_ALPHA, entry.Entity, 0, false);
-
-                        if (entry.DeleteOnComplete)
-                            entry.Entity.Delete();
-
-                        _pending.RemoveAt(i);
-                        continue;
-                    }
+                    _pending.RemoveAt(i);
+                    continue;
                 }
 
-                Function.Call(Hash.SET_ENTITY_ALPHA, entry.Entity, (int)entry.Alpha, false);
                 _pending[i] = entry;
             }
+        }
+
+        // ── Core math (func_7327 / func_7328, generalized for both directions) ─
+
+        private static int ComputeAlpha(ref FadeEntry entry)
+        {
+            float dt = Game.LastFrameTime;
+            entry.Timer += dt;
+
+            float wave = (float)Math.Sin((entry.Timer * 1000f) + entry.PhaseOffset);
+
+            bool pastDuration = entry.Timer >= entry.FlickerDuration;
+
+            if (pastDuration)
+            {
+                // Past the free-jitter window: stop letting the wave swing back toward
+                // the "wrong" side, only ever move toward the target (0 or 255) from here.
+                wave = entry.FadeIn ? Math.Abs(wave) : -Math.Abs(wave);
+            }
+
+            float normalized = (wave + 1f) * 0.5f; // remap [-1,1] -> [0,1]
+            int alpha = (int)Math.Round(normalized * 255f, MidpointRounding.AwayFromZero);
+
+            if (pastDuration)
+            {
+                bool reachedTarget = entry.FadeIn ? alpha >= 255 : alpha <= 0;
+                if (reachedTarget)
+                {
+                    entry.Finished = true;
+                    alpha = entry.FadeIn ? 255 : 0;
+                }
+            }
+
+            return alpha;
+        }
+
+        private static void RemovePending(Entity entity)
+        {
+            for (int i = _pending.Count - 1; i >= 0; i--)
+            {
+                if (_pending[i].Entity == entity)
+                    _pending.RemoveAt(i);
+            }
+        }
+
+        private static float NextPhaseOffset()
+        {
+            // R* hardcodes 500; randomizing keeps the same feel while desyncing multiple entities fading at the same time so they don't flicker in lockstep.
+            return (float)(_rng.NextDouble() * 1000.0);
         }
     }
 }

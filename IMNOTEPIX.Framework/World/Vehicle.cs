@@ -8,6 +8,18 @@ namespace IMNOTEPIX.Framework.fWorld
 {
     public class Vehicle
     {
+        public static void SetAmbientVehicleDensityMultiplierThisFrame(float multiplier)
+            => Function.Call(Hash.SET_​AMBIENT_​VEHICLE_​RANGE_​MULTIPLIER_​THIS_​FRAME, multiplier);
+
+        public static void SetParkedVehicleDensityMultiplierThisFrame(float multiplier)
+            => Function.Call(Hash.SET_​PARKED_​VEHICLE_​DENSITY_​MULTIPLIER_​THIS_​FRAME, multiplier);
+
+        public static void SetRandomVehicleDensityMultiplierThisFrame(float multiplier)
+            => Function.Call(Hash.SET_​RANDOM_​VEHICLE_​DENSITY_​MULTIPLIER_​THIS_​FRAME, multiplier);
+
+        public static void SetVehicleDensityMultiplierThisFrame(float multiplier)
+            => Function.Call(Hash.SET_​VEHICLE_​DENSITY_​MULTIPLIER_​THIS_​FRAME, multiplier);
+
         public static void SmashVehicleWindow(GTA.Vehicle vehicle, int windowIndex)
             => Function.Call(Hash.SMASH_​VEHICLE_​WINDOW, vehicle, windowIndex);
 

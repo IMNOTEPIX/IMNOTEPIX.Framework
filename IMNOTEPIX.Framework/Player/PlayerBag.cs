@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace IMNOTEPIX.Framework.fPlayer
 {
-    public class BagManager
+    public class PlayerBag
     {
         private const int FreemodeComponentId = 5;
         private const int StoryModeComponentId = 9;

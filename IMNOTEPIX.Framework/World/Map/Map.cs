@@ -9,7 +9,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
         public static bool IsMpMapLoaded 
             => Function.Call<bool>(Hash.IS_IPL_ACTIVE, "xm_hatch_closed");
 
-        public static void LoadMP()
+        public static void LoadMP(bool noCheck = false)
         {
             if (!IsMpMapLoaded)
             {
@@ -19,6 +19,23 @@ namespace IMNOTEPIX.Framework.fWorld.Map
                 Function.Call(Hash.EXECUTE_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP"));
                 LoadingPrompt.Hide();
                 Function.Call(Hash.CLEAR_ALL_HELP_MESSAGES);
+                LoadGenericMansions();
+                fUI.Hud.SetMinimapComponent(20, true, -1);
+                fUI.Hud.SetMinimapComponent(22, true, -1);
+                fUI.Hud.SetMinimapComponent(21, true, -1);
+            }
+            if (IsMpMapLoaded && noCheck)
+            {
+                Function.Call(Hash.ON_ENTER_MP);
+                Function.Call(Hash.SET_INSTANCE_PRIORITY_MODE, 1);
+                Function.Call(Hash.REVERT_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP_SP"));
+                Function.Call(Hash.EXECUTE_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP"));
+                LoadingPrompt.Hide();
+                Function.Call(Hash.CLEAR_ALL_HELP_MESSAGES);
+                LoadGenericMansions();
+                fUI.Hud.SetMinimapComponent(20, true, -1);
+                fUI.Hud.SetMinimapComponent(22, true, -1);
+                fUI.Hud.SetMinimapComponent(21, true, -1);
             }
             foreach (string str in RemoveOnlyIPLS)
             {
@@ -30,6 +47,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
                 Function.Call(Hash.REQUEST_IPL, str2);
             }
         }
+
         public static void LoadSP()
         {
             if (IsMpMapLoaded)
@@ -40,6 +58,9 @@ namespace IMNOTEPIX.Framework.fWorld.Map
                 Function.Call(Hash.EXECUTE_CONTENT_CHANGESET_GROUP_FOR_ALL, Misc.joaat("GROUP_MAP_SP"));
                 LoadingPrompt.Hide();
                 Function.Call(Hash.CLEAR_ALL_HELP_MESSAGES);
+                fUI.Hud.SetMinimapComponent(20, false, -1);
+                fUI.Hud.SetMinimapComponent(22, false, -1);
+                fUI.Hud.SetMinimapComponent(21, false, -1);
             }
             foreach (string str in LoadAllIPLS)
             {
@@ -54,6 +75,10 @@ namespace IMNOTEPIX.Framework.fWorld.Map
 
         public static List<string> LoadAllIPLS = new List<string>
         {
+            "m26_1_mp2026_01_additions_exterior",
+            "m26_1_mp2026_01_additions_exterior_cctv",
+            "m26_1_mp2026_01_additions_exterior_maintenance",
+            "m26_1_mp2026_01_additions_kortz_lowerbarriers_up",
             "xm_hatch_01_cutscene",
             "xm_hatch_02_cutscene",
             "xm_hatch_03_cutscene",
@@ -158,6 +183,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
 
         public static List<string> RemoveOnlyIPLS = new List<string>
         {
+            "m26_1_mp2026_01_additions_kortz_lowerbarriers",
             "xm_bunkerentrance_door",
             "chemgrill_grp1",
             "id2_14_pre_no_int",
@@ -209,5 +235,205 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             "hei_ch1_06e_strm_2",
             "hei_ch1_06e_strm_1"
         };
+
+        private static void LoadGenericMansions()
+        {
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_shared"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_shared");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_shared"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_shared");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06f_mansion_shared"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06f_mansion_shared");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_shared"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_shared");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_private"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_06e_mansion_private");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_06e_mansion_interior_a"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_06e_mansion_interior_a");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_06e_mansion_interior_b"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_06e_mansion_interior_b");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_06e_mansion_interior_c"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_06e_mansion_interior_c");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_generic"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_generic");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_06e_mansion_original");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_06e_props_original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_06e_props_original");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_06f_mansion_Original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_06f_mansion_Original");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_railings_m"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_06e_mansion_railings_m");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_mansion_gym"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_mansion_gym");
+            }
+            if (fCore.Streaming.IsIplActive("apa_ch2_04_mansion_private"))
+            {
+                fCore.Streaming.RemoveIpl("apa_ch2_04_mansion_private");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch2_04_mansion_interior_a"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch2_04_mansion_interior_a");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch2_04_mansion_interior_b"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch2_04_mansion_interior_b");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch2_04_mansion_interior_c"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch2_04_mansion_interior_c");
+            }
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_generic"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_generic");
+            }
+            if (fCore.Streaming.IsIplActive("apa_ch2_04_mansion_original"))
+            {
+                fCore.Streaming.RemoveIpl("apa_ch2_04_mansion_original");
+            }
+            if (fCore.Streaming.IsIplActive("apa_ch2_04_props_original"))
+            {
+                fCore.Streaming.RemoveIpl("apa_ch2_04_props_original");
+            }
+            if (fCore.Streaming.IsIplActive("apa_ch2_04_mansion_railings_m"))
+            {
+                fCore.Streaming.RemoveIpl("apa_ch2_04_mansion_railings_m");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_tongva_mansion_gym"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_tongva_mansion_gym");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_09_mansion_private"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_09_mansion_private");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_09_mansion_interior_a"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_09_mansion_interior_a");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_09_mansion_interior_b"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_09_mansion_interior_b");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_ch1_09_mansion_interior_c"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_ch1_09_mansion_interior_c");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_generic"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_generic");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_09_mansion_original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_09_mansion_original");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_09_props_original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_09_props_original");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_09_mansion_railings_m"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_09_mansion_railings_m");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_east_mansion_gym"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_east_mansion_gym");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_roads_mansion"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_roads_mansion");
+            }
+            if (fCore.Streaming.IsIplActive("hei_ch1_roads_original"))
+            {
+                fCore.Streaming.RemoveIpl("hei_ch1_roads_original");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_tongva_dog_house"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_tongva_dog_house");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_east_dog_house"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_east_dog_house");
+            }
+            if (fCore.Streaming.IsIplActive("m25_2_dog_house"))
+            {
+                fCore.Streaming.RemoveIpl("m25_2_dog_house");
+            }
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_shared_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_shared_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_shared_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_shared_lodlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_shared_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_shared_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_shared_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_shared_lodlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_shared_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_shared_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_shared_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_shared_lodlights");
+            }
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_firepit_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_firepit_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("apa_ch2_04_mansion_firepit_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("apa_ch2_04_mansion_firepit_lodlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_firepit_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_firepit_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_06e_mansion_firepit_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_06e_mansion_firepit_lodlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_firepit_distantlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_firepit_distantlights");
+            }
+            if (!fCore.Streaming.IsIplActive("hei_ch1_09_mansion_firepit_lodlights"))
+            {
+                fCore.Streaming.RequestIpl("hei_ch1_09_mansion_firepit_lodlights");
+            }
+        }
     }
 }

@@ -22,11 +22,11 @@ namespace IMNOTEPIX.Framework.fCore
             if (string.IsNullOrEmpty(dict))
                 return dict;
 
-            animDictList?.Add(dict);
-
             Function.Call(Hash.REQUEST_ANIM_DICT, dict);
             while (!Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, dict))
                 GTA.Script.Wait(0);
+
+            animDictList?.Add(dict);
 
             return dict;
         }
@@ -34,11 +34,8 @@ namespace IMNOTEPIX.Framework.fCore
         /// <summary>Unloads all dicts previously registered in <paramref name="animDictList"/>.</summary>
         public static void RemoveAnimDicts(List<string> animDictList)
         {
-            if (animDictList == null || animDictList.Count == 0)
-                return;
-
             foreach (var dict in animDictList)
-                Function.Call(Hash.REMOVE_ANIM_DICT, dict);
+                RemoveAnimDict(dict);
         }
 
         /// <summary>Unloads a single anim dict by name.</summary>
@@ -100,5 +97,35 @@ namespace IMNOTEPIX.Framework.fCore
 
         public static bool HasModelLoaded(int model)
             => Function.Call<bool>(Hash.HAS_​MODEL_​LOADED, model);
+
+        public static bool IsIplActive(string iplName)
+            => Function.Call<bool>(Hash.IS_​IPL_​ACTIVE, iplName);
+
+        public static void RequestIpl(string iplName)
+           => Function.Call(Hash.REQUEST_IPL, iplName);
+
+        public static void RemoveIpl(string iplName)
+           => Function.Call(Hash.REMOVE_IPL, iplName);
+
+        public static void IplGroupSwapStart(string iplName1, string iplName2)
+            => Function.Call(Hash.IPL_​GROUP_​SWAP_​START, iplName1, iplName2);
+
+        public static void IplGroupSwapCancel()
+            => Function.Call(Hash.IPL_​GROUP_​SWAP_​CANCEL);
+
+        public static bool IplGroupSwapIsReady()
+            => Function.Call<bool>(Hash.IPL_​GROUP_​SWAP_​IS_​READY);
+
+        public static void IplGroupSwapFinish()
+            => Function.Call(Hash.IPL_​GROUP_​SWAP_​FINISH);
+
+        public static bool IplGroupSwapIsActive()
+            => Function.Call<bool>(Hash.IPL_​GROUP_​SWAP_​IS_​ACTIVE);
+
+        public static void SetInteriorActive(int interiorID, bool toggle)
+            => Function.Call(Hash.SET_​INTERIOR_​ACTIVE, interiorID, toggle);
+
+        public static void LoadAllObjectsNow()
+            => Function.Call(Hash.LOAD_​ALL_​OBJECTS_​NOW);
     }
 }

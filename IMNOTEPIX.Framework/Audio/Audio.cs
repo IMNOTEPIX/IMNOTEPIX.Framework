@@ -36,11 +36,11 @@ namespace IMNOTEPIX.Framework.fAudio
         public static void PlaySoundFromEntity(int soundId, string audioName, GTA.Entity entity, string audioRef, bool isNetwork = false, int p5 = 0)
            => Function.Call(Hash.PLAY_SOUND_FROM_ENTITY, soundId, audioName, entity, audioRef, isNetwork, p5);
 
-        public static void PlaySoundFrontend(int soundId, string audioName, string audioRef, bool enableOnReplay = true)
-            => Function.Call(Hash.PLAY_SOUND_FRONTEND, soundId, audioName, audioRef, enableOnReplay);
+        public static void PlaySoundFrontend(int soundId, string audioName, string audioRef, bool p3 = false)
+            => Function.Call(Hash.PLAY_SOUND_FRONTEND, soundId, audioName, audioRef, p3);
 
         public static void PlaySoundFrontend(string audioName, string audioRef)
-            => Function.Call(Hash.PLAY_SOUND_FRONTEND, -1, audioName, audioRef, true);
+            => Function.Call(Hash.PLAY_SOUND_FRONTEND, -1, audioName, audioRef, false);
 
         public static void PlayStreamFrontend()
             => Function.Call(Hash.PLAY_STREAM_FRONTEND);
@@ -127,11 +127,11 @@ namespace IMNOTEPIX.Framework.fAudio
         public static void SetVehicleRadioEnabled(GTA.Vehicle vehicle, bool enabled)
             => Function.Call(Hash.SET_VEHICLE_RADIO_ENABLED, vehicle, enabled);
 
-        public static void PlayPedAmbientSpeech(GTA.Ped ped, string speechName, string speechParam, int unk = 1)
-            => Function.Call(Hash.PLAY_PED_AMBIENT_SPEECH_NATIVE, ped, speechName, speechParam, unk);
+        public static void PlayPedAmbientSpeech(GTA.Ped ped, string speechName, string speechParam)
+            => Function.Call(Hash.PLAY_PED_AMBIENT_SPEECH_NATIVE, ped, speechName, speechParam);
 
-        public static bool RequestScriptAudioBank(string audioBank, bool p1, int p2 = -1)
-            => Function.Call<bool>(Hash.REQUEST_SCRIPT_AUDIO_BANK, audioBank, p1, p2);
+        public static bool RequestScriptAudioBank(string audioBank, bool bOverNetwork, int playerBits = -1)
+            => Function.Call<bool>(Hash.REQUEST_SCRIPT_AUDIO_BANK, audioBank, bOverNetwork, playerBits);
 
         public static void ReleaseNamedScriptAudioBank(string audioBank)
             => Function.Call(Hash.RELEASE_NAMED_SCRIPT_AUDIO_BANK, audioBank);

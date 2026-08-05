@@ -7,15 +7,36 @@ namespace IMNOTEPIX.Framework.fGameplay.Combat
     /// Holds every active <see cref="CombatAgent"/> and drives their per-tick updates.
     /// <see cref="CombatAgent"/> registers itself automatically on construction.
     /// </summary>
-    public class CombatRegistry
+    public class CombatRegistry : Script
     {
         public static IReadOnlyList<CombatAgent> All => _peds;
 
-        private static readonly List<CombatAgent> _peds = new List<CombatAgent>();
+        public static readonly List<CombatAgent> _alivePeds = [];
+
+        private static readonly List<CombatAgent> _peds = [];
 
         private static float _lastCheckTime;
         private static float _lastActivateTime;
         private const float TickInterval = 700f;
+
+        public static bool CheckingEnabled { get; set; } = true;
+
+        public CombatRegistry()
+        {
+            Aborted += OnAbort;
+            Tick += OnTick;
+        }
+
+        private void OnTick(object sender, System.EventArgs e)
+        {
+            if (CheckingEnabled)
+                Check();
+        }
+
+        private void OnAbort(object sender, System.EventArgs e)
+        {
+            DisposeAll();
+        }
 
         internal static void Register(CombatAgent ped)
         {

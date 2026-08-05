@@ -5,6 +5,14 @@ namespace IMNOTEPIX.Framework.fCore
 {
     public class Math
     {
+        /// <summary>
+        /// Converts a speed from meters per second to kilometers per hour, rounded to the nearest whole number.
+        /// </summary>
+        /// <param name="metersPerSecond">The speed in meters per second (e.g. as returned by GTA.Vehicle.Speed).</param>
+        /// <returns>The equivalent speed in kilometers per hour, rounded to the nearest integer.</returns>
+        public static int ConvertMetersPerSecondToKilometersPerHourRounded(float metersPerSecond)
+            => (int)System.Math.Round(metersPerSecond * 3.6f);
+
         public static Vector3 RotationToDirection(Vector3 rotation)
         {
             double pitch = rotation.X * System.Math.PI / 180.0;

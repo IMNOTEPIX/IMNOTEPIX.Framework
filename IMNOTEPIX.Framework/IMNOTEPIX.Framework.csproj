@@ -15,6 +15,7 @@
     <LangVersion>latest</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,6 +46,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,20 +56,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstracts\AInterior.cs" />
     <Compile Include="Blip\Blip.cs" />
     <Compile Include="Blip\BlipPreset.cs" />
     <Compile Include="Blip\BlipPresets.cs" />
     <Compile Include="Blip\GPSBlip.cs" />
+    <Compile Include="Core\AfterAbortClass.cs" />
+    <Compile Include="Core\BaseCollection.cs" />
+    <Compile Include="Core\ConsoleLog.cs" />
+    <Compile Include="Core\DataStore.cs" />
     <Compile Include="Core\Debug.cs" />
+    <Compile Include="Core\AfterAbort.cs" />
+    <Compile Include="Core\Internals\CTextFileMemory.cs" />
+    <Compile Include="Core\Internals\CTextStyleMemory.cs" />
+    <Compile Include="Core\Internals\SHVDNConsole.cs" />
+    <Compile Include="Core\Internals\TimerBarsMemory.cs" />
+    <Compile Include="Core\Internals\UsingTls.cs" />
+    <Compile Include="Core\Localization.cs" />
+    <Compile Include="Core\Misc.cs" />
+    <Compile Include="Examples\TimerBarsExample.cs" />
+    <Compile Include="Extension\BlipExtensions.cs" />
     <Compile Include="Extension\EntityExtensions.cs" />
     <Compile Include="Core\InstructionalKey.cs" />
     <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\Math.cs" />
+    <Compile Include="Extension\ExtensionTick.cs" />
+    <Compile Include="Gameplay\Minigames\CashGrabMinigame.cs" />
+    <Compile Include="Gameplay\Minigames\CashGrabMinigameDisposal.cs" />
+    <Compile Include="Gameplay\Minigames\StackGrab.cs" />
+    <Compile Include="Gameplay\Minigames\WashingMachineGrab.cs" />
     <Compile Include="Interfaces\IScene.cs" />
     <Compile Include="Player\Phone.cs" />
     <Compile Include="Audio\Audio.cs" />
     <Compile Include="Player\WeaponLoadout.cs" />
+    <Compile Include="UI\BusySpinner.cs" />
+    <Compile Include="UI\HudColor.cs" />
     <Compile Include="UI\Scaleforms\BigMessage.cs" />
+    <Compile Include="UI\TextCommands.cs" />
+    <Compile Include="UI\TextStyle.cs" />
+    <Compile Include="UI\TimerBars\BarTimerBar.cs" />
+    <Compile Include="UI\TimerBars\CheckpointsTimerBar.cs" />
+    <Compile Include="UI\TimerBars\IconsTimerBar.cs" />
+    <Compile Include="UI\TimerBars\TB.cs" />
+    <Compile Include="UI\TimerBars\TextTimerBar.cs" />
+    <Compile Include="UI\TimerBars\TimerBarBase.cs" />
+    <Compile Include="UI\TimerBars\TimerBarPool.cs" />
+    <Compile Include="UI\TimerBars\TimerBarScriptGlobals.cs" />
+    <Compile Include="UI\TimerBars\TimerBarsShared.cs" />
     <Compile Include="World\Camera.cs" />
     <Compile Include="World\Clock.cs" />
     <Compile Include="Player\Input.cs" />
@@ -76,6 +113,15 @@
     <Compile Include="World\Effects\Fire.cs" />
     <Compile Include="World\Effects\Rayfire.cs" />
     <Compile Include="World\HintCamera.cs" />
+    <Compile Include="World\Map\CayoPerico.cs" />
+    <Compile Include="World\Map\Interiors\AInteriorTemplate.cs" />
+    <Compile Include="World\Map\Interiors\CluckinBellGarage.cs" />
+    <Compile Include="World\Map\Interiors\CokeGarage.cs" />
+    <Compile Include="World\Map\Interiors\CounterfeitGarages\Color.cs" />
+    <Compile Include="World\Map\Interiors\CounterfeitGarages\CounterfeitGarageA.cs" />
+    <Compile Include="World\Map\Interiors\CounterfeitGarages\CounterfeitGarageB.cs" />
+    <Compile Include="World\Map\Interiors\CounterfeitGarages\CounterfeitGarageC.cs" />
+    <Compile Include="World\Map\Interiors\CounterfeitGarages\CounterfeitGarageD.cs" />
     <Compile Include="World\Misc.cs" />
     <Compile Include="Interfaces\IMinigame.cs" />
     <Compile Include="Core\GameTimer.cs" />
@@ -84,7 +130,7 @@
     <Compile Include="Core\Script.cs" />
     <Compile Include="World\Animations\SynchronizedScene.cs" />
     <Compile Include="Core\Timer.cs" />
-    <Compile Include="Player\BagManager.cs" />
+    <Compile Include="Player\PlayerBag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World\Entity.cs" />
     <Compile Include="World\Pathfind.cs" />
@@ -92,7 +138,7 @@
     <Compile Include="World\Ped.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Core\Streaming.cs" />
-    <Compile Include="World\BombCountdownDisplay.cs" />
+    <Compile Include="UI\RenderTargets\BombCountdownDisplay.cs" />
     <Compile Include="World\Task.cs" />
     <Compile Include="World\Train.cs" />
     <Compile Include="World\Vehicle.cs" />
@@ -104,16 +150,6 @@
     <Compile Include="UI\Hud.cs" />
     <Compile Include="UI\Scaleforms\InstructionalButtons.cs" />
     <Compile Include="UI\Scaleforms\MidsizedShard.cs" />
-    <Compile Include="Examples\HudBarExampleUsage.cs" />
-    <Compile Include="UI\TimerBars\HudBar.cs" />
-    <Compile Include="UI\TimerBars\HudBarController.cs" />
-    <Compile Include="UI\TimerBars\HudBarDraw.cs" />
-    <Compile Include="UI\TimerBars\HudCheckpointsBar.cs" />
-    <Compile Include="UI\TimerBars\HudCountdownBar.cs" />
-    <Compile Include="UI\TimerBars\HudPlayerBar.cs" />
-    <Compile Include="UI\TimerBars\HudProgressBar.cs" />
-    <Compile Include="UI\TimerBars\HudTextBar.cs" />
-    <Compile Include="UI\TimerBars\HudValueBar.cs" />
     <Compile Include="Gameplay\Combat\CombatConfig.cs" />
     <Compile Include="Gameplay\Combat\CombatGroup.cs" />
     <Compile Include="Gameplay\Combat\CombatAgent.cs" />
@@ -122,16 +158,16 @@
     <Compile Include="World\Map\MansionConfig.cs" />
     <Compile Include="World\Map\MansionInterior.cs" />
     <Compile Include="World\Map\Map.cs" />
-    <Compile Include="World\Map\NorthYanktonMap.cs" />
+    <Compile Include="World\Map\NorthYankton.cs" />
     <Compile Include="Gameplay\Minigames\CartGrab.cs" />
-    <Compile Include="Gameplay\Minigames\CartGrabExtensions.cs" />
+    <Compile Include="Extension\CashGrabExtensions.cs" />
     <Compile Include="World\Clouds.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.dll" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.dll" /y
-copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.pdb" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.pdb" /y
-copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.xml" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.xml" /y</PostBuildEvent>
+    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" eazfuscator.net.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 2026.1
+copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.dll" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.dll" /y
+copy "C:\Users\lleva\source\repos\IMNOTEPIX.Framework\IMNOTEPIX.Framework\bin\Debug\IMNOTEPIX.Framework.pdb" "C:\Program Files\Rockstar Games\Grand Theft Auto V\Scripts\IMNOTEPIX.Framework.pdb" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

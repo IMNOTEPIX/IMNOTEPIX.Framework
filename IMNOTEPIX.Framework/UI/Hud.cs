@@ -5,6 +5,7 @@ using GTA.UI;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 
 namespace IMNOTEPIX.Framework.fUI
 {
@@ -22,16 +23,14 @@ namespace IMNOTEPIX.Framework.fUI
            => Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text);
 
         /// <summary>
-        /// p0     = help message shape/ID, usually 0
-        /// loop   = stays on screen until cleared if true
-        /// beep   = plays the help beep sound
-        /// duration = display time in ms, -1 for default
-        ///
-        /// NOTE: parameter order fixed vs original — first param is shape/p0,
-        /// last is duration. Original had these named and ordered incorrectly.
+        /// 
         /// </summary>
-        public static void EndTextCommandDisplayHelp(int p0 = 0, bool loop = false, bool beep = true, int duration = -1)
-           => Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, p0, loop, beep, duration);
+        /// <param name="shape">: 0 for a normal rectangle shape, 1 and 2 has rounded edges</param>
+        /// <param name="loop">: If this is true, the message will stay forever unless you call CLEAR_ALL_HELP_MESSAGES.</param>
+        /// <param name="beep">: If this is true, the beeping sound will play.Beeping sound name is INFO in sound set HUD_FRONTEND_DEFAULT_SOUNDSET.</param>
+        /// <param name="duration">: Duration in ms of how long this help message should display for. -1 for default.</param>
+        public static void EndTextCommandDisplayHelp(int shape = 0, bool loop = false, bool beep = true, int duration = -1)
+           => Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, shape, loop, beep, duration);
 
         public static bool IsHelpMessageBeingDisplayed()
             => Function.Call<bool>(Hash.IS_HELP_MESSAGE_BEING_DISPLAYED);
@@ -85,14 +84,39 @@ namespace IMNOTEPIX.Framework.fUI
         /// </summary>
         public static void DisplayGXTHelpText(string gxtEntry, bool loop = false, bool beep = true, int duration = -1)
         {
-            bool showing = Function.Call<bool>(Hash.IS_HELP_MESSAGE_BEING_DISPLAYED) || Function.Call<bool>(Hash.IS_HELP_MESSAGE_ON_SCREEN) || Function.Call<bool>(Hash.IS_HELP_MESSAGE_FADING_OUT);
+            if (!IsHelpMessageOnScreen() || !Game.Player.Character.IsDead)
+            {
+                bool showing = Function.Call<bool>(Hash.IS_HELP_MESSAGE_BEING_DISPLAYED) || Function.Call<bool>(Hash.IS_HELP_MESSAGE_ON_SCREEN) || Function.Call<bool>(Hash.IS_HELP_MESSAGE_FADING_OUT);
 
-            Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_HELP, gxtEntry);
-            Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, 0, loop, showing ? false : beep, duration);
+                Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_HELP, gxtEntry);
+                Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, 0, loop, showing ? false : beep, duration);
+            }
         }
 
-        public static void DisplayHelpTextThisFrameGXT(string helpText, bool p1 = true)
-            => Function.Call(Hash.DISPLAY_HELP_TEXT_THIS_FRAME, helpText, p1);
+        /// <summary>
+        /// Displays help text, without displaying it in the brief. Needs to be called every frame.
+        /// </summary>
+        /// <param name="gxtEntry">gxt entry that is shown.</param>
+        /// <param name="curvedWindow">unused.</param>
+        public static void DisplayHelpTextThisFrame(string gxtEntry, bool curvedWindow = false)
+        {
+            if (!IsHelpMessageOnScreen() || !Game.Player.Character.IsDead)
+                Function.Call(Hash.DISPLAY_HELP_TEXT_THIS_FRAME, gxtEntry, curvedWindow);
+        }
+
+        public static bool IsHelpTextActive(string gtxEntry, HudIndex hudIndex = 0)
+        {
+            Function.Call(Hash.BEGIN_TEXT_COMMAND_IS_THIS_HELP_MESSAGE_BEING_DISPLAYED, gtxEntry);
+            return Function.Call<bool>(Hash.END_TEXT_COMMAND_IS_THIS_HELP_MESSAGE_BEING_DISPLAYED, (int)hudIndex);
+        }
+
+        public enum HudIndex
+        {
+            HELP_TEXT = 0,
+            FLOATING_HELP_TEXT_1 = 1,
+            FLOATING_HELP_TEXT_2 = 2,
+        }
+
 
         #endregion
 
@@ -153,7 +177,7 @@ namespace IMNOTEPIX.Framework.fUI
         #region Notifications
 
         public static void ShowNotification(string message, bool isImportant = true, bool cacheMessage = true)
-   => Notification.PostTicker(message, isImportant, cacheMessage);
+            => Notification.PostTicker(message, isImportant, cacheMessage);
 
         public static FeedPost PostMessageNotify(string text, TextureAsset textAsset, bool isImportant, FeedTextIcon icon, string senderName)
             => Notification.PostMessageText(text, textAsset, isImportant, icon, senderName);
@@ -176,10 +200,10 @@ namespace IMNOTEPIX.Framework.fUI
 
         public static void ShowSubtitle(string message, int duration, bool drawImmediately = true)
             => Screen.ShowSubtitle(message, duration, drawImmediately);
-        public static void ShowGXTSubtitle(string gxtEntry, int duration = 10)
+        public static void ShowGXTSubtitle(string gxtEntry, int duration = 3000, bool drawImmediately = true)
         {
             Function.Call(Hash.BEGIN_TEXT_COMMAND_PRINT, gxtEntry);
-            Function.Call(Hash.END_TEXT_COMMAND_PRINT, duration, true);
+            Function.Call(Hash.END_TEXT_COMMAND_PRINT, duration, drawImmediately);
         }
 
         #endregion
@@ -312,6 +336,15 @@ namespace IMNOTEPIX.Framework.fUI
 
         public static void SetGPSFlashes(bool toggle)
             => Function.Call(Hash.SET_​GPS_​FLASHES, toggle);
+
+        public static void SetRadarAsInteriorThisFrame(int interior, float x, float y, int z, int zoom)
+            => Function.Call(Hash.SET_​RADAR_​AS_​INTERIOR_​THIS_​FRAME, interior, x, y, z, zoom);
+
+        public static void SetRadarZoomToDistance(float zoom)
+            => Function.Call(Hash.SET_​RADAR_​ZOOM_​TO_​DISTANCE, zoom);
+
+        public static bool SetMinimapComponent(int componentId, bool toggle, int overrideColor)
+            => Function.Call<bool>(Hash.SET_​MINIMAP_​COMPONENT, componentId, toggle, overrideColor);
 
         #endregion
 

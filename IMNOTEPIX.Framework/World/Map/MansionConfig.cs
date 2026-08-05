@@ -9,7 +9,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
     public class MansionConfig
     {
         public MansionInterior.MansionID ID { get; set; }
-        public bool Enabled { get; set; } = true;
+        public bool Enabled { get; set; } = false;
 
         // Floor lookup coords — resolved to interior IDs at call time
         public Vector3 MainFloorCoords { get; set; }

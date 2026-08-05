@@ -6,6 +6,20 @@ namespace IMNOTEPIX.Framework.fUI
 {
     public class Graphics
     {
+        /// <summary>
+        /// Checks if there is a brief entry for specified value.
+        /// </summary>
+        /// <param name="briefValue">0 - Dialogue brief 1 - Help text brief 2 - Mission Objective brief</param>
+        /// <returns></returns>
+        public static bool DoesLatestBriefStringExist(int briefValue)
+            => Function.Call<bool>(Hash.DOES_​LATEST_​BRIEF_​STRING_​EXIST, briefValue);
+
+        public static void FadeDecalsInRange(float x, float y, float z, float radius, float duration)
+            => Function.Call(Hash.FADE_DECALS_IN_RANGE, x, y, z, radius, duration);
+
+        public static void FadeDecalsInRange(Vector3 xyz, float radius, float duration)
+            => Function.Call(Hash.FADE_DECALS_IN_RANGE, xyz.X, xyz.Y, xyz.Z, radius, duration);
+
         public static void AnimpostFxStop(string effectName)
             => Function.Call(Hash.ANIMPOSTFX_​STOP, effectName);
 

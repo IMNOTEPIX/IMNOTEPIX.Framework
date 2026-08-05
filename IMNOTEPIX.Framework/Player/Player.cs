@@ -73,31 +73,25 @@ namespace IMNOTEPIX.Framework.fPlayer
             *(long*)(baseAddr + 56UL) = hash; // +32 + 24 = +56 from ped base
         }
 
-        // SHVDN's Wanted class has no public constructor — CreateWanted() uses
-        // reflection to call the internal constructor with the player handle.
-        // This mirrors how SHVDN instantiates it internally.
-
-        // Lazily initialized to avoid class-load-time reflection failure
-        // if SHVDN isn't ready yet when the static class is first accessed.
-        private static Wanted _wanted;
-        private static Wanted Wanted => _wanted ??= CreateWanted(Game.Player.Handle);
-
-        public static bool IsWanted => Wanted.WantedLevel > 0;
+        public static bool IsWanted => Game.Player.Wanted.WantedLevel > 0;
 
         public static void SetWantedLevel(int level)
         {
-            try
-            {
-                Wanted.SetWantedLevel(level, false);
-                Wanted.ApplyWantedLevelChangeNow(false);
-            }
-            catch (Exception ex)
-            {
-                fUI.Hud.ShowNotification("Wanted function failed: " + ex.Message);
-            }
+            Game.Player.Wanted.SetWantedLevel(level, false);
+            Game.Player.Wanted.ApplyWantedLevelChangeNow(false);
         }
 
+        public static void SetWantedLevelNoDrop(int level)
+        {
+            Game.Player.Wanted.SetWantedLevelNoDrop(level, false);
+            Game.Player.Wanted.ApplyWantedLevelChangeNow(false);
+        }
+
+        public static void SetDispatchCops(bool enable)
+            => Game.Player.Wanted.DispatchesCopsForPlayer = enable;
+
         /// <summary>Clears all wanted stars immediately.</summary>
+        [Obsolete("Use ClearWantedLevel instead.")]
         public static void SetWantedLevelTo0() => SetWantedLevel(0);
 
         public static int FakeWantedLevel
@@ -164,18 +158,150 @@ namespace IMNOTEPIX.Framework.fPlayer
         public static void SimulateInputGait(float moveBlendRatio, int timer = 2000, float heading = 0f, bool useRelativeHeading = true, bool noInputInterruption = false)
            => Function.Call(Hash.SIMULATE_PLAYER_INPUT_GAIT, Game.Player, moveBlendRatio, timer, heading, useRelativeHeading, noInputInterruption);
 
-        /// <summary>
-        /// Creates a Wanted instance via reflection. SHVDN's Wanted class has no
-        /// public constructor — it is only instantiated internally by the library.
-        /// This mirrors that internal instantiation using the player handle.
-        /// If SHVDN changes the constructor signature this will throw at runtime.
-        /// </summary>
-        private static Wanted CreateWanted(int playerHandle)
-        {
-            var type = typeof(Wanted);
-            var instance = type.Assembly.CreateInstance(type.FullName, ignoreCase: false, bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic, binder: null, args: new object[] { playerHandle }, culture: null, activationAttributes: null);
+        public static bool IsBeingArrested(bool atArresting)
+            => Function.Call<bool>(Hash.IS_​PLAYER_​BEING_​ARRESTED, Game.Player, atArresting);
 
-            return (Wanted)instance ?? throw new InvalidOperationException("Failed to create Wanted instance via reflection. " + "SHVDN constructor signature may have changed.");
+        public static void ClearWantedLevel()
+            => Function.Call(Hash.CLEAR_PLAYER_WANTED_LEVEL, Game.Player);
+
+        public static void PoliceIgnorePlayer(bool ignore)
+            => Game.Player.Wanted.SetPoliceIgnorePlayer(ignore);
+
+        public static void EveryoneIgnorePlayer(bool ignore)
+            => Game.Player.Wanted.SetEveryoneIgnorePlayer(ignore);
+
+        /// <summary>
+        /// Sets whether all random peds will run away from the player if they are agitated (threatened) (bool=true), or if they will stand their ground (bool=false).
+        /// </summary>
+        /// <param name="toggle">true/false.</param>
+        public static void SetAllRandomPedsFlee(bool toggle)
+            => Function.Call(Hash.SET_​ALL_​RANDOM_​PEDS_​FLEE, Game.Player, toggle);
+
+        public static void SetAllRandomPedsFleeThisFrame()
+            => Function.Call(Hash.SET_​ALL_​RANDOM_​PEDS_​FLEE_​THIS_​FRAME, Game.Player);
+
+        public static void SetWantedLevelMultiplier(float multiplier)
+            => Function.Call(Hash.SET_​WANTED_​LEVEL_​MULTIPLIER, multiplier);
+
+        /// <summary>
+        /// Max value is 1.0.
+        /// </summary>
+        /// <param name="difficulty"></param>
+        public static void SetWantedLevelDifficulty(float difficulty)
+            => Function.Call(Hash.SET_​WANTED_​LEVEL_​DIFFICULTY, Game.Player, difficulty);
+
+        public static void ResetWantedLevelDifficulty()
+            => Function.Call(Hash.RESET_​WANTED_​LEVEL_​DIFFICULTY, Game.Player);
+
+        public static void ReportCrime(CrimeType crimeType, int wantedLvlThresh)
+            => Function.Call(Hash.REPORT_​CRIME, Game.Player, (int)crimeType, wantedLvlThresh);
+
+        public static void SuppressCrimeThisFrame(int crimeType)
+            => Function.Call(Hash.SUPPRESS_​CRIME_​THIS_​FRAME, Game.Player, crimeType);
+
+        public static void SuppressWitnessesCallingPoliceThisFrame()
+            => Function.Call(Hash.SUPPRESS_​WITNESSES_​CALLING_​POLICE_​THIS_​FRAME, Game.Player);
+
+        public static void SetPlayerCanBeHassledByGangs(bool toggle)
+            => Function.Call(Hash.SET_​PLAYER_​CAN_​BE_​HASSLED_​BY_​GANGS, Game.Player, toggle);
+
+        public static void GangHassle(bool toggle)
+        {
+            RelationshipGroup player = new RelationshipGroup(RelationshipGroupHash.Player);
+            if (!toggle)
+            {
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangBallas, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangCult, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangFamily, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangHillbilly, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangLost, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangMarabunte, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangMexican, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangSalva, Relationship.Like);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangWeiCheng, Relationship.Like);
+                SetPlayerCanBeHassledByGangs(false);
+            }
+            else
+            {
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangBallas, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangCult, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangFamily, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangHillbilly, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangLost, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangMarabunte, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangMexican, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangSalva, Relationship.Pedestrians);
+                player.SetRelationshipBetweenGroups(RelationshipGroupHash.AmbientGangWeiCheng, Relationship.Pedestrians);
+                SetPlayerCanBeHassledByGangs(true);
+            }
+        }
+
+        public static void SetPlayerCanUseCover(bool toggle)
+            => Function.Call(Hash.SET_​PLAYER_​CAN_​USE_​COVER, Game.Player, toggle);
+
+        // used with 1,2,8,64,128 in the scripts
+        public static void ForceCleanup(int cleanupFlags)
+            => Function.Call(Hash.FORCE_​CLEANUP, cleanupFlags);
+
+        public static void EnableSpecialAbility(bool toggle)
+            => Function.Call(Hash.ENABLE_SPECIAL_ABILITY, Game.Player, toggle);
+
+        public static int GetSpecialAbility()
+        {
+            int result = -1;
+            unsafe
+            {
+                if (!IsMichael)
+                {
+                    if (!IsFranklin)
+                    {
+                        if (IsTrevor)
+                            Function.Call<bool>(Hash.STAT_GET_INT, fWorld.Misc.joaat("sp2_special_ability"), &result, -1);
+                    }
+                    else
+                        Function.Call<bool>(Hash.STAT_GET_INT, fWorld.Misc.joaat("sp1_special_ability"), &result, -1);
+                }
+                else
+                    Function.Call<bool>(Hash.STAT_GET_INT, fWorld.Misc.joaat("sp0_special_ability"), &result, -1);
+
+            }
+            return result;
+        }
+
+        public static void SetSpecialAbility (int specialAbility)
+        {
+            if (!IsMichael)
+            {
+                if (!IsFranklin)
+                {
+                    if (IsTrevor)
+                        Function.Call<bool>(Hash.STAT_SET_INT, fWorld.Misc.joaat("sp2_special_ability"), specialAbility, true);
+                }
+                else
+                    Function.Call<bool>(Hash.STAT_SET_INT, fWorld.Misc.joaat("sp1_special_ability"), specialAbility, true);
+            }
+            else
+                Function.Call<bool>(Hash.STAT_SET_INT, fWorld.Misc.joaat("sp0_special_ability"), specialAbility, true);
+            Function.Call(Hash.UPDATE_SPECIAL_ABILITY_FROM_STAT, Game.Player, 0);
+        }
+
+        public static void UnlockSpecialAbility(bool toggle)
+        {
+            if (IsMichael)
+                Function.Call(Hash.SPECIAL_ABILITY_UNLOCK, fWorld.Misc.joaat("player_zero"), 0);
+            if (IsFranklin)
+                Function.Call(Hash.SPECIAL_ABILITY_UNLOCK, fWorld.Misc.joaat("player_one"), 0);
+            if (IsTrevor)
+                Function.Call(Hash.SPECIAL_ABILITY_UNLOCK, fWorld.Misc.joaat("player_two"), 0);
+        }
+        public static void LockSpecialAbility(bool toggle)
+        {
+            if (IsMichael)
+                Function.Call(Hash.SPECIAL_ABILITY_LOCK, fWorld.Misc.joaat("player_zero"), 0);
+            if (IsFranklin)
+                Function.Call(Hash.SPECIAL_ABILITY_LOCK, fWorld.Misc.joaat("player_one"), 0);
+            if (IsTrevor)
+                Function.Call(Hash.SPECIAL_ABILITY_LOCK, fWorld.Misc.joaat("player_two"), 0);
         }
     }
 }

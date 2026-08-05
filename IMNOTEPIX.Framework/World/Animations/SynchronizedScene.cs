@@ -85,15 +85,6 @@ namespace IMNOTEPIX.Framework.fWorld.Anims
             }
         }
 
-        /// <summary>
-        /// Plays an animation on a non-ped entity within this scene.
-        /// </summary>
-        /// <remarks>
-        /// <c>WARNING:</c> MoveBlend default 1148846080 is a suspicious magic value.
-        /// As a float literal this compiles to ~1.149e9, not the intended 1000.0f
-        /// (whose IEEE 754 bits are 0x447A0000 = 1148846080). If you need 1000.0,
-        /// pass 1000f explicitly. Standard blend ratios are 0.0–8.0.
-        /// </remarks>
         public void PlayEntity(GTA.Entity entity, string animDict, string animName, float blendIn = 8f, float blendOut = 8f, SyncedSceneFlags flag = SyncedSceneFlags.None, float moveBlend = 1148846080)
         {
             if (!IsActive || entity == null || !entity.Exists())
@@ -103,12 +94,6 @@ namespace IMNOTEPIX.Framework.fWorld.Anims
             Function.Call(Hash.FORCE_ENTITY_AI_AND_ANIMATION_UPDATE, entity);
         }
 
-        /// <summary>
-        /// Assigns a synchronized scene task to a ped.
-        /// </summary>
-        /// <remarks>
-        /// <c>WARNING:</c> MoveBlendRatio default has the same magic value issue as PlayEntity.
-        /// </remarks>
         public void PlayPed(GTA.Ped ped, string animDict, string animName, float blendIn = 8f, float blendOut = 8f, SyncedSceneFlags flag = SyncedSceneFlags.None, RagdollBlockingFlags ragdollBlockingFlags = RagdollBlockingFlags.None, float moveBlendRatio = 1148846080, AnimationIKControlFlags ikFlags = AnimationIKControlFlags.None)
         {
             if (!IsActive || ped == null || !ped.Exists())
@@ -118,10 +103,6 @@ namespace IMNOTEPIX.Framework.fWorld.Anims
             Function.Call(Hash.FORCE_PED_AI_AND_ANIMATION_UPDATE, ped, false, false);
         }
 
-        /// <summary>
-        /// Creates or reuses the scene camera and plays its animation.
-        /// Times out after 500ms if the camera handle is not returned by the native.
-        /// </summary>
         public void PlayCam(string animDict, string animName, int timeout = 500)
         {
             if (!IsActive)

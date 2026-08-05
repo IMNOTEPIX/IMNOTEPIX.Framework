@@ -293,6 +293,9 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             RequestMansion(Richman);
             RequestMansion(Vinewood);
             RequestMansion(Tongva);
+            fUI.Hud.SetMinimapComponent(20, true, -1);
+            fUI.Hud.SetMinimapComponent(22, true, -1);
+            fUI.Hud.SetMinimapComponent(21, true, -1);
         }
 
         public static void RemoveMansions()
@@ -300,6 +303,9 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             RemoveMansion(Richman);
             RemoveMansion(Vinewood);
             RemoveMansion(Tongva);
+            fUI.Hud.SetMinimapComponent(20, false, -1);
+            fUI.Hud.SetMinimapComponent(22, false, -1);
+            fUI.Hud.SetMinimapComponent(21, false, -1);
         }
 
         public static void RequestMansion(MansionConfig cfg)
@@ -311,10 +317,10 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             if (cfg.Enabled)
             {
                 foreach (var ipl in _enableRemove[cfg.ID])
-                    Interior.RemoveIpl(ipl);
+                    fCore.Streaming.RemoveIpl(ipl);
 
                 foreach (var ipl in _enableRequest[cfg.ID])
-                    Interior.RequestIpl(ipl);
+                    fCore.Streaming.RequestIpl(ipl);
 
                 DeactivateMansionEntitySets(mainFloor, lowerFloor, garageFloor);
                 ActivateMansionEntitySets(cfg, mainFloor, lowerFloor, garageFloor);
@@ -324,20 +330,20 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             else
             {
                 foreach (var ipl in _restoreRemove[cfg.ID])
-                    Interior.RemoveIpl(ipl);
+                    fCore.Streaming.RemoveIpl(ipl);
 
                 foreach (var ipl in _restoreRequest[cfg.ID])
-                    Interior.RequestIpl(ipl);
+                    fCore.Streaming.RequestIpl(ipl);
             }
         }
 
         public static void RemoveMansion(MansionConfig cfg)
         {
             foreach (var ipl in _restoreRemove[cfg.ID])
-                Interior.RemoveIpl(ipl);
+                fCore.Streaming.RemoveIpl(ipl);
 
             foreach (var ipl in _restoreRequest[cfg.ID])
-                Interior.RequestIpl(ipl);
+                fCore.Streaming.RequestIpl(ipl);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -715,9 +721,7 @@ namespace IMNOTEPIX.Framework.fWorld.Map
             }
             catch
             {
-                // Model failed to load — most likely a missing mods folder entry.
-                // Chairs will simply not appear rather than crashing the interior setup.
-                Notification.PostTicker("~b~EAI~w~:~r~Error~w~ Could not spawn 'm25_2_prop_m52_diningchair_01a'. " + "This is likely due to your mods folder missing the model. " + "Remove the mods folder and see if the error persists.", false);
+                fUI.Hud.ShowNotification("~p~IMNOTEPIX~w~ - ~r~Error~w~ Could not spawn 'm25_2_prop_m52_diningchair_01a'. This is likely due to your mods folder missing the model. Remove the mods folder and see if the error persists.");
             }
         }
 

@@ -88,7 +88,7 @@ namespace IMNOTEPIX.Framework.fUI.Scaleforms
             => Function.Call<bool>(Hash.BUSYSPINNER_IS_ON) ? 1 : 0;
 
 
-        public class InstructionalButtonsCollection : BaseCollection<IInstructionalButtonSlot>, IEnumerable<InstructionalButton>
+        public class InstructionalButtonsCollection : fCore.BaseCollection<IInstructionalButtonSlot>, IEnumerable<InstructionalButton>
         {
             // Backwards-compatibility: allow LINQ to work on InstructionalButton entries
             // even though the list now holds the broader IInstructionalButtonSlot interface.
@@ -96,57 +96,6 @@ namespace IMNOTEPIX.Framework.fUI.Scaleforms
             IEnumerator<InstructionalButton> IEnumerable<InstructionalButton>.GetEnumerator()
                 => InternalList.OfType<InstructionalButton>().GetEnumerator();
         }
-    }
-
-
-    // ---------------------------------------------------------------------------
-    // BaseCollection<T>
-    // Replaces the RAGE-specific BaseCollection<T>. Consider moving to Core/ if
-    // you need it elsewhere in the framework.
-    // ---------------------------------------------------------------------------
-    public class BaseCollection<T> : IEnumerable<T>
-    {
-        protected readonly List<T> InternalList = new List<T>();
-
-        public event Action<BaseCollection<T>, T> ItemAdded;
-        public event Action<BaseCollection<T>, T> ItemRemoved;
-        public event Action<BaseCollection<T>, T, T> ItemModified;
-        public event Action<BaseCollection<T>> Cleared;
-
-        public int Count => InternalList.Count;
-
-        public T this[int index]
-        {
-            get => InternalList[index];
-            set
-            {
-                T old = InternalList[index];
-                InternalList[index] = value;
-                ItemModified?.Invoke(this, old, value);
-            }
-        }
-
-        public void Add(T item)
-        {
-            InternalList.Add(item);
-            ItemAdded?.Invoke(this, item);
-        }
-
-        public bool Remove(T item)
-        {
-            bool removed = InternalList.Remove(item);
-            if (removed) ItemRemoved?.Invoke(this, item);
-            return removed;
-        }
-
-        public void Clear()
-        {
-            InternalList.Clear();
-            Cleared?.Invoke(this);
-        }
-
-        public IEnumerator<T> GetEnumerator() => InternalList.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
 

@@ -567,6 +567,12 @@ namespace IMNOTEPIX.Framework.fWorld
         public static bool IsPedMale(GTA.Ped ped)
             => Function.Call<bool>(Hash.IS_​PED_​MALE, ped);
 
+        public static void SetPedDensityMultiplierThisFrame(float multiplier = 1f)
+            => Function.Call(Hash.SET_​PED_​DENSITY_​MULTIPLIER_​THIS_​FRAME, multiplier);
+
+        public static void SetScenarioPedDensityMultiplierThisFrame(float interiorMult, float exteriorMult)
+            => Function.Call(Hash.SET_​SCENARIO_​PED_​DENSITY_​MULTIPLIER_​THIS_​FRAME, interiorMult, exteriorMult);
+
         public enum ExitStates
         {
             Default,

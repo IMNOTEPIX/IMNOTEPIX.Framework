@@ -6,54 +6,50 @@
     using System.Xml.Linq;
     using GTA;
     using GTA.Native;
-    using IMNOTEPIX.Framework.fCore;
 
-    /// <summary>
-    /// A weapon loadout that lives as a variable in your code.
-    /// Create it, apply it to the player, and optionally save/load it to XML.
-    ///
-    /// Usage:
-    ///     var combatLoadout = new WeaponLoadout(
-    ///         (WeaponHash.Pistol,   100),
-    ///         (WeaponHash.Shotgun,   50),
-    ///         (WeaponHash.SMG,      200)
-    ///     );
-    ///     combatLoadout.Apply();
-    ///     combatLoadout.Apply(clearExisting: true);
-    ///     combatLoadout.Save("Combat", "scripts/IMNOTEPIX/Loadouts");
-    ///
-    ///     // Snapshot the player's current weapons as a loadout variable.
-    ///     var snapshot = WeaponLoadout.FromPlayer();
-    ///     snapshot.Print();
-    ///     snapshot.Save("MySnapshot");
-    /// </summary>
     public class WeaponLoadout
     {
-        private readonly List<(WeaponHash Hash, int Ammo)> _weapons;
+        private readonly List<(WeaponHash Hash, int Ammo, List<WeaponComponentHash> Components)> _weapons;
 
-        /// <summary>
-        /// Creates a loadout from any number of (WeaponHash, ammo) pairs.
-        /// </summary>
         public WeaponLoadout(params (WeaponHash Hash, int Ammo)[] weapons)
         {
             if (weapons == null || weapons.Length == 0)
                 throw new ArgumentException("A loadout must contain at least one weapon.");
 
-            _weapons = new List<(WeaponHash, int)>(weapons);
+            _weapons = new List<(WeaponHash, int, List<WeaponComponentHash>)>();
+            foreach (var (hash, ammo) in weapons)
+                _weapons.Add((hash, ammo, new List<WeaponComponentHash>()));
         }
 
-        // Private constructor used by Load().
-        private WeaponLoadout(List<(WeaponHash, int)> weapons)
+        private WeaponLoadout(List<(WeaponHash, int, List<WeaponComponentHash>)> weapons)
         {
             _weapons = weapons;
         }
 
         /// <summary>
-        /// Gives this loadout to the player.
+        /// Attaches a component to a weapon already in this loadout. No-op if the weapon isn't present.
         /// </summary>
-        /// <param name="clearExisting">
-        ///     If true, strips all of the player's current weapons before applying.
-        /// </param>
+        public void AddComponent(WeaponHash weapon, WeaponComponentHash component)
+        {
+            for (int i = 0; i < _weapons.Count; i++)
+            {
+                if (_weapons[i].Hash == weapon)
+                {
+                    _weapons[i].Components.Add(component);
+                    return;
+                }
+            }
+        }
+        private bool IsWeaponMK2(WeaponHash weapon)
+        {
+            if (weapon == WeaponHash.PistolMk2 || weapon == WeaponHash.SMGMk2 || weapon == WeaponHash.AssaultrifleMk2 || weapon == WeaponHash.CarbineRifleMk2 || weapon == WeaponHash.CombatMGMk2 ||
+                weapon == WeaponHash.HeavySniperMk2 || weapon == WeaponHash.BullpupRifleMk2 || weapon == WeaponHash.MarksmanRifleMk2 || weapon == WeaponHash.PumpShotgunMk2 || weapon == WeaponHash.RevolverMk2 ||
+                weapon == WeaponHash.SNSPistolMk2 || weapon == WeaponHash.SpecialCarbineMk2)
+                return true;
+            else
+                return false;
+        }
+
         public void Apply(bool clearExisting = false)
         {
             var player = Game.Player.Character;
@@ -61,51 +57,60 @@
             if (clearExisting)
                 Function.Call(Hash.REMOVE_ALL_PED_WEAPONS, player.Handle, true);
 
-            foreach (var (hash, ammo) in _weapons)
+            foreach (var (hash, ammo, components) in _weapons)
             {
                 bool alreadyHas = Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, player.Handle, (uint)hash, false);
-
                 if (!alreadyHas)
+                    Function.Call(Hash.GIVE_WEAPON_TO_PED, player.Handle, (uint)hash, 0, false, true);
+
+                foreach (var component in components)
+                    Function.Call(Hash.GIVE_WEAPON_COMPONENT_TO_PED, player.Handle, (uint)hash, (uint)component);
+
+                if (IsWeaponMK2(hash))
                 {
-                    Function.Call(Hash.GIVE_WEAPON_TO_PED, player.Handle, (uint)hash, ammo, false, true);
+                    uint ammoType = Function.Call<uint>(Hash.GET_PED_AMMO_TYPE_FROM_WEAPON, player.Handle, (uint)hash);
+                    if (Function.Call<int>(Hash.GET_AMMO_IN_PED_WEAPON, player.Handle, (uint)hash) <= 0)
+                        Function.Call(Hash.ADD_PED_AMMO_BY_TYPE, player.Handle, ammoType, ammo);
+                    else
+                    {
+                        Function.Call(Hash.SET_PED_AMMO, player.Handle, (uint)hash, 0);
+                        Function.Call(Hash.ADD_PED_AMMO_BY_TYPE, player.Handle, ammoType, ammo);
+                    }
                 }
                 else
                 {
-                    Function.Call(Hash.ADD_AMMO_TO_PED, player.Handle, (uint)hash, ammo);
+                    Function.Call(Hash.SET_PED_AMMO, player.Handle, (uint)hash, ammo);
                 }
             }
         }
 
-        /// <summary>
-        /// Saves this loadout to an XML file.
-        /// </summary>
-        /// <param name="fileName">Name for the file (no extension needed).</param>
-        /// <param name="directory">Folder to save into. Created if it doesn't exist.</param>
-        public void Save(string fileName, string directory = "scripts/IMNOTEPIX/Loadouts")
+        public void Save(string fileName, string directory = "scripts/IMNOTEPIX/Data")
         {
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
             var root = new XElement("Loadout");
 
-            foreach (var (hash, ammo) in _weapons)
+            foreach (var (hash, ammo, components) in _weapons)
             {
-                root.Add(new XElement("Weapon", new XAttribute("hash", (uint)hash), new XAttribute("ammo", ammo)));
+                var weaponEl = new XElement("Weapon",
+                    new XAttribute("hash", (uint)hash),
+                    new XAttribute("ammo", ammo));
+
+                foreach (var component in components)
+                    weaponEl.Add(new XElement("Component", new XAttribute("hash", (uint)component)));
+
+                root.Add(weaponEl);
             }
 
             string path = Path.Combine(directory, $"{fileName}.xml");
             new XDocument(root).Save(path);
         }
 
-        /// <summary>
-        /// Builds a WeaponLoadout from whatever the player is currently carrying.
-        /// The result is a normal loadout variable — you can apply, save, or inspect it.
-        /// Returns null if the player has no weapons.
-        /// </summary>
         public static WeaponLoadout FromPlayer()
         {
             var player = Game.Player.Character;
-            var entries = new List<(WeaponHash, int)>();
+            var entries = new List<(WeaponHash, int, List<WeaponComponentHash>)>();
 
             foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))
             {
@@ -113,13 +118,22 @@
                     continue;
 
                 bool hasWeapon = Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, player.Handle, (uint)hash, false);
-
                 if (!hasWeapon)
                     continue;
 
                 int ammo = Function.Call<int>(Hash.GET_AMMO_IN_PED_WEAPON, player.Handle, (uint)hash);
 
-                entries.Add((hash, ammo));
+                var components = new List<WeaponComponentHash>();
+                foreach (WeaponComponentHash component in Enum.GetValues(typeof(WeaponComponentHash)))
+                {
+                    bool hasComponent = Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON_COMPONENT,
+                        player.Handle, (uint)hash, (uint)component);
+
+                    if (hasComponent)
+                        components.Add(component);
+                }
+
+                entries.Add((hash, ammo, components));
             }
 
             if (entries.Count <= 1)
@@ -133,33 +147,30 @@
             return new WeaponLoadout(entries);
         }
 
-        /// <summary>
-        /// Prints every weapon and its ammo count to the screen as a GTA notification.
-        /// </summary>
         public void Print()
         {
             var lines = new System.Text.StringBuilder();
             lines.AppendLine("~b~── Weapon Loadout ──");
 
-            foreach (var (hash, ammo) in _weapons)
+            foreach (var (hash, ammo, components) in _weapons)
+            {
                 lines.AppendLine($"~w~{hash} ~s~| Ammo: ~y~{ammo}");
+                foreach (var component in components)
+                    lines.AppendLine($"~s~   + ~g~{component}");
+            }
 
             GTA.UI.Notification.PostTicker(lines.ToString(), false);
         }
 
-        /// <summary>
-        /// Returns a read-only snapshot of the weapons in this loadout.
-        /// Useful if you want to loop over them in your own code.
-        /// </summary>
-        public IReadOnlyList<(WeaponHash Hash, int Ammo)> GetWeapons() => _weapons.AsReadOnly();
+        public IReadOnlyList<(WeaponHash Hash, int Ammo, IReadOnlyList<WeaponComponentHash> Components)> GetWeapons()
+        {
+            var result = new List<(WeaponHash, int, IReadOnlyList<WeaponComponentHash>)>();
+            foreach (var (hash, ammo, components) in _weapons)
+                result.Add((hash, ammo, components.AsReadOnly()));
+            return result.AsReadOnly();
+        }
 
-        /// <summary>
-        /// Loads a saved XML file and returns it as a new WeaponLoadout you can use like any other.
-        /// </summary>
-        /// <param name="fileName">Name of the file to load (no extension needed).</param>
-        /// <param name="directory">Folder to load from.</param>
-        /// <returns>A WeaponLoadout built from the file, or null if loading failed.</returns>
-        public static WeaponLoadout Load(string fileName, string directory = "scripts/IMNOTEPIX/Loadouts")
+        public static WeaponLoadout Load(string fileName, string directory = "scripts/IMNOTEPIX/Data")
         {
             string path = Path.Combine(directory, $"{fileName}.xml");
 
@@ -171,14 +182,22 @@
 
             try
             {
-                var entries = new List<(WeaponHash, int)>();
+                var entries = new List<(WeaponHash, int, List<WeaponComponentHash>)>();
                 var root = XDocument.Load(path).Root;
 
-                foreach (var el in root.Elements("Weapon"))
+                foreach (var weaponEl in root.Elements("Weapon"))
                 {
-                    var hash = (WeaponHash)uint.Parse((string)el.Attribute("hash"));
-                    int ammo = int.Parse((string)el.Attribute("ammo"));
-                    entries.Add((hash, ammo));
+                    var hash = (WeaponHash)uint.Parse((string)weaponEl.Attribute("hash"));
+                    int ammo = int.Parse((string)weaponEl.Attribute("ammo"));
+
+                    var components = new List<WeaponComponentHash>();
+                    foreach (var componentEl in weaponEl.Elements("Component"))
+                    {
+                        var component = (WeaponComponentHash)uint.Parse((string)componentEl.Attribute("hash"));
+                        components.Add(component);
+                    }
+
+                    entries.Add((hash, ammo, components));
                 }
 
                 return new WeaponLoadout(entries);
